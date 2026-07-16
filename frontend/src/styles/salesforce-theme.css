@@ -1,0 +1,606 @@
+/* ═══════════════════════════════════════════════════════════════════
+   Husky CRM — Salesforce 主题系统
+   覆盖 Element Plus 默认变量 + 全局 Salesforce 风格
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Font imports ──────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+/* ── Element Plus 变量覆盖 ─────────────────────────────────────── */
+:root {
+  /* Primary: Salesforce Blue #1589EE */
+  --el-color-primary: #1589ee;
+  --el-color-primary-light-3: #3ba1f2;
+  --el-color-primary-light-5: #6bb9f6;
+  --el-color-primary-light-7: #9bd0f9;
+  --el-color-primary-light-8: #b3dcfb;
+  --el-color-primary-light-9: #cbe7fc;
+  --el-color-primary-dark-2: #116dbd;
+
+  /* Success / Warning / Danger / Info */
+  --el-color-success: #2e844a;
+  --el-color-warning: #dd7a01;
+  --el-color-danger: #c23934;
+  --el-color-info: #706e6b;
+
+  /* Text */
+  --el-text-color-primary: #080707;
+  --el-text-color-regular: #3e3e3c;
+  --el-text-color-secondary: #706e6b;
+  --el-text-color-placeholder: #c9c7c5;
+
+  /* Border */
+  --el-border-color: #dddbda;
+  --el-border-color-light: #e5e4e2;
+  --el-border-color-lighter: #f3f2f2;
+  --el-border-radius-base: 3px;
+  --el-border-radius-small: 2px;
+
+  /* Font */
+  --el-font-size-base: 13px;
+  --el-font-size-small: 12px;
+  --el-font-size-large: 14px;
+  --el-font-weight-primary: 400;
+
+  /* Background */
+  --el-bg-color: #ffffff;
+  --el-bg-color-page: #f4f6f9;
+  --el-bg-color-overlay: #ffffff;
+
+  /* Fill */
+  --el-fill-color: #f3f3f3;
+  --el-fill-color-light: #fafafa;
+  --el-fill-color-blank: #ffffff;
+
+  /* Table */
+  --el-table-font-size: 12px;
+  --el-table-text-color: #3e3e3c;
+  --el-table-header-text-color: #514f4d;
+  --el-table-row-hover-bg-color: #f4f6f9;
+  --el-table-current-row-bg-color: #e8f0fe;
+  --el-table-header-bg-color: #ffffff;
+  --el-table-border-color: #e5e4e2;
+  --el-table-row-height: 36px;
+  --el-table-cell-padding: 4px 8px;
+
+  /* Menu */
+  --el-menu-item-height: 38px;
+  --el-menu-item-font-size: 13px;
+
+  /* Input */
+  --el-input-height: 32px;
+  --el-input-border-color: #dddbda;
+  --el-input-focus-border-color: #1589ee;
+  --el-input-font-size: 13px;
+
+  /* Button */
+  --el-button-font-size: 12px;
+  --el-button-border-radius: 3px;
+
+  /* Dialog */
+  --el-dialog-border-radius: 4px;
+  --el-dialog-padding-primary: 16px;
+
+  /* Card */
+  --el-card-border-radius: 3px;
+  --el-card-padding: 12px 16px;
+}
+
+/* ── Global base ───────────────────────────────────────────────── */
+html {
+  font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #f4f6f9;
+  color: #3e3e3c;
+  font-size: 13px;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #c9c7c5;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ── Layout ─────────────────────────────────────────────────────── */
+.app-layout {
+  height: 100vh;
+  display: flex;
+}
+
+.app-main {
+  background: #f4f6f9;
+  padding: 12px 16px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ── Salesforce-style Sidebar ───────────────────────────────────── */
+.sf-sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: #ffffff;
+  border-right: 1px solid #dddbda;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sf-sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #dddbda;
+  min-height: 48px;
+}
+
+.sf-sidebar-logo {
+  font-size: 17px;
+  font-weight: 700;
+  color: #080707;
+  letter-spacing: -0.3px;
+}
+
+.sf-sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.sf-nav-section-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: #514f4d;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 10px 14px 4px;
+}
+
+.sf-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  color: #3e3e3c;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.sf-nav-item:hover {
+  background: #f4f6f9;
+}
+
+.sf-nav-item.active {
+  background: #e8f0fe;
+  border-left-color: #1589ee;
+  color: #1589ee;
+  font-weight: 600;
+}
+
+.sf-nav-item .sf-nav-icon {
+  width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #706e6b;
+}
+
+.sf-nav-item.active .sf-nav-icon {
+  color: #1589ee;
+}
+
+/* ── Salesforce-style Header ────────────────────────────────────── */
+.sf-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 50px;
+  padding: 0 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #dddbda;
+  gap: 12px;
+}
+
+.sf-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.sf-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sf-user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #1589ee;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sf-user-name {
+  font-size: 12px;
+  color: #3e3e3c;
+  cursor: pointer;
+}
+
+/* ── Page title ─────────────────────────────────────────────────── */
+.sf-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.sf-page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #080707;
+  margin: 0;
+}
+
+.sf-page-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Salesforce-style Card ──────────────────────────────────────── */
+.sf-card {
+  background: #ffffff;
+  border: 1px solid #dddbda;
+  border-radius: 3px;
+  margin-bottom: 12px;
+}
+
+.sf-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid #dddbda;
+  font-size: 13px;
+  font-weight: 600;
+  color: #080707;
+}
+
+.sf-card-body {
+  padding: 12px 14px;
+}
+
+/* ── Record detail layout (Salesforce-style) ────────────────────── */
+.sf-record-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1px solid #dddbda;
+  border-radius: 3px;
+  margin-bottom: 12px;
+}
+
+.sf-record-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8f0fe;
+  color: #1589ee;
+  font-size: 20px;
+}
+
+.sf-record-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #080707;
+  flex: 1;
+}
+
+.sf-record-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Field section (Salesforce record detail) ───────────────────── */
+.sf-field-section {
+  background: #ffffff;
+  border: 1px solid #dddbda;
+  border-radius: 3px;
+  margin-bottom: 12px;
+}
+
+.sf-field-section-title {
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #514f4d;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  border-bottom: 1px solid #dddbda;
+  background: #fafafa;
+}
+
+.sf-field-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0;
+}
+
+.sf-field {
+  padding: 8px 14px;
+  border-bottom: 1px solid #f3f2f2;
+}
+
+.sf-field:nth-child(even) {
+  border-left: 1px solid #f3f2f2;
+}
+
+.sf-field-label {
+  font-size: 11px;
+  color: #706e6b;
+  margin-bottom: 2px;
+  font-weight: 400;
+}
+
+.sf-field-value {
+  font-size: 13px;
+  color: #080707;
+  font-weight: 400;
+}
+
+/* ── Related List (Salesforce-style) ────────────────────────────── */
+.sf-related-list {
+  background: #ffffff;
+  border: 1px solid #dddbda;
+  border-radius: 3px;
+  margin-bottom: 12px;
+}
+
+.sf-related-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid #dddbda;
+}
+
+.sf-related-list-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #080707;
+}
+
+.sf-related-list-count {
+  font-size: 11px;
+  color: #706e6b;
+  margin-left: 6px;
+}
+
+/* ── Path/Wizard component ──────────────────────────────────────── */
+.sf-path {
+  background: #ffffff;
+  border: 1px solid #dddbda;
+  border-radius: 3px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.sf-path-steps {
+  display: flex;
+  position: relative;
+}
+
+.sf-path-step {
+  flex: 1;
+  text-align: center;
+  padding: 10px 4px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-right: 1px solid #dddbda;
+}
+
+.sf-path-step:last-child {
+  border-right: none;
+}
+
+.sf-path-step.active {
+  background: #e8f0fe;
+}
+
+.sf-path-step.active .sf-path-step-label {
+  color: #1589ee;
+  font-weight: 600;
+}
+
+.sf-path-step.complete {
+  background: #f4f6f9;
+}
+
+.sf-path-step.complete .sf-path-step-label {
+  color: #2e844a;
+}
+
+.sf-path-step-label {
+  font-size: 11px;
+  color: #706e6b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sf-path-step-date {
+  font-size: 10px;
+  color: #c9c7c5;
+  margin-top: 2px;
+}
+
+/* ── Activity Timeline ──────────────────────────────────────────── */
+.sf-timeline {
+  position: relative;
+  padding: 8px 0;
+}
+
+.sf-timeline::before {
+  content: '';
+  position: absolute;
+  left: 16px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #dddbda;
+}
+
+.sf-timeline-item {
+  display: flex;
+  gap: 12px;
+  padding: 8px 14px;
+  position: relative;
+}
+
+.sf-timeline-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #1589ee;
+  border: 2px solid #fff;
+  margin-top: 4px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.sf-timeline-content {
+  flex: 1;
+}
+
+.sf-timeline-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #080707;
+}
+
+.sf-timeline-meta {
+  font-size: 11px;
+  color: #706e6b;
+  margin-top: 2px;
+}
+
+/* ── Compact table (for related lists) ──────────────────────────── */
+.sf-table-compact .el-table__header th {
+  background: #fafafa !important;
+  font-size: 11px !important;
+  color: #514f4d !important;
+  font-weight: 600 !important;
+  padding: 4px 8px !important;
+  border-bottom: 1px solid #dddbda !important;
+}
+
+.sf-table-compact .el-table__body td {
+  padding: 4px 8px !important;
+  font-size: 12px !important;
+}
+
+/* ── Global Search ──────────────────────────────────────────────── */
+.sf-global-search {
+  position: relative;
+  max-width: 400px;
+  flex: 1;
+}
+
+.sf-global-search .el-input__wrapper {
+  background: #f4f6f9;
+  border-radius: 3px;
+  border: 1px solid transparent;
+}
+
+.sf-global-search .el-input__wrapper.is-focus {
+  border-color: #1589ee;
+  background: #fff;
+}
+
+/* ── Filter bar (list view) ─────────────────────────────────────── */
+.sf-filter-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 14px;
+  background: #fafafa;
+  border-bottom: 1px solid #dddbda;
+}
+
+.sf-filter-bar .el-input {
+  width: 200px;
+}
+
+/* ── Override Element Plus dialog to be more compact ────────────── */
+.el-dialog {
+  --el-dialog-padding-primary: 16px;
+}
+.el-dialog__header {
+  padding: 12px 16px;
+  margin: 0;
+  border-bottom: 1px solid #dddbda;
+}
+.el-dialog__body {
+  padding: 16px;
+}
+.el-dialog__footer {
+  padding: 12px 16px;
+  border-top: 1px solid #dddbda;
+}
+
+/* ── Override Element Plus button ───────────────────────────────── */
+.el-button--small {
+  font-size: 11px;
+  padding: 4px 10px;
+}
+
+/* ── Override Element Plus tag ──────────────────────────────────── */
+.el-tag {
+  --el-tag-font-size: 11px;
+  --el-tag-padding: 0 6px;
+}
+
+/* ── Override Element Plus notification ─────────────────────────── */
+.el-message {
+  min-width: 300px;
+}
+
+/* ── Override Element Plus table ────────────────────────────────── */
+.el-table .cell {
+  padding-left: 8px;
+  padding-right: 8px;
+}
