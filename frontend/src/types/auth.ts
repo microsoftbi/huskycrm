@@ -1,10 +1,12 @@
 export interface User {
-  id: number
+  id: string
   username: string
   email: string
   display_name: string | null
   is_active: boolean
   is_superuser: boolean
+  created_at?: string | null
+  updated_at?: string | null
 }
 
 export interface LoginRequest {

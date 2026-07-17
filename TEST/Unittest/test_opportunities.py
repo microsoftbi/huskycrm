@@ -16,10 +16,11 @@ class TestCreateOpportunity:
     async def test_create_success(self, client, auth_headers, seeded_stages):
         resp = await client.post("/api/accounts", headers=auth_headers, json={"name": "Test Account"})
         acc_id = resp.json()["id"]
+        stage_id = seeded_stages[0].id
         resp = await client.post("/api/opportunities", headers=auth_headers, json={
             "name": "Big Deal",
             "account_id": acc_id,
-            "stage_id": 1,
+            "stage_id": stage_id,
             "amount": 500000,
             "probability": 30,
             "close_date": "2026-12-31",
@@ -29,22 +30,24 @@ class TestCreateOpportunity:
         data = resp.json()
         assert data["name"] == "Big Deal"
         assert data["amount"] == 500000.0
-        assert data["stage_id"] == 1
+        assert data["stage_id"] == stage_id
 
     async def test_create_invalid_stage(self, client, auth_headers):
         resp = await client.post("/api/opportunities", headers=auth_headers, json={
-            "name": "Bad Stage", "stage_id": 999,
+            "name": "Bad Stage", "stage_id": "nonexistent",
         })
         assert resp.status_code == 400
 
 
 class TestListOpportunities:
     async def test_list_and_search(self, client, auth_headers, seeded_stages):
+        stage1 = seeded_stages[0].id
+        stage2 = seeded_stages[1].id
         await client.post("/api/opportunities", headers=auth_headers, json={
-            "name": "Alpha Deal", "stage_id": 1, "amount": 10000,
+            "name": "Alpha Deal", "stage_id": stage1, "amount": 10000,
         })
         await client.post("/api/opportunities", headers=auth_headers, json={
-            "name": "Beta Deal", "stage_id": 2, "amount": 20000,
+            "name": "Beta Deal", "stage_id": stage2, "amount": 20000,
         })
         resp = await client.get("/api/opportunities", headers=auth_headers)
         assert resp.status_code == 200
@@ -53,32 +56,35 @@ class TestListOpportunities:
         resp = await client.get("/api/opportunities?search=Alpha", headers=auth_headers)
         assert resp.json()["total"] == 1
 
-        resp = await client.get("/api/opportunities?stage_id=2", headers=auth_headers)
+        resp = await client.get(f"/api/opportunities?stage_id={stage2}", headers=auth_headers)
         assert resp.json()["total"] == 1
 
 
 class TestUpdateOpportunity:
     async def test_move_stage(self, client, auth_headers, seeded_stages):
+        stage1 = seeded_stages[0].id
+        stage3 = seeded_stages[2].id
         resp = await client.post("/api/opportunities", headers=auth_headers, json={
-            "name": "Moving Deal", "stage_id": 1, "amount": 100000,
+            "name": "Moving Deal", "stage_id": stage1, "amount": 100000,
         })
         opp_id = resp.json()["id"]
         resp = await client.put(f"/api/opportunities/{opp_id}", headers=auth_headers, json={
-            "stage_id": 3, "probability": 50,
+            "stage_id": stage3, "probability": 50,
         })
         assert resp.status_code == 200
-        assert resp.json()["stage_id"] == 3
+        assert resp.json()["stage_id"] == stage3
         assert resp.json()["probability"] == 50
 
     async def test_update_not_found(self, client, auth_headers):
-        resp = await client.put("/api/opportunities/999", headers=auth_headers, json={"name": "X"})
+        resp = await client.put("/api/opportunities/nonexistent", headers=auth_headers, json={"name": "X"})
         assert resp.status_code == 404
 
 
 class TestDeleteOpportunity:
     async def test_delete(self, client, auth_headers, seeded_stages):
+        stage1 = seeded_stages[0].id
         resp = await client.post("/api/opportunities", headers=auth_headers, json={
-            "name": "Delete Me", "stage_id": 1,
+            "name": "Delete Me", "stage_id": stage1,
         })
         opp_id = resp.json()["id"]
         resp = await client.delete(f"/api/opportunities/{opp_id}", headers=auth_headers)
@@ -87,17 +93,18 @@ class TestDeleteOpportunity:
 
 class TestPipeline:
     async def test_pipeline_structure(self, client, auth_headers, seeded_stages):
+        stage1 = seeded_stages[0].id
         await client.post("/api/opportunities", headers=auth_headers, json={
-            "name": "Deal 1", "stage_id": 1, "amount": 50000,
+            "name": "Deal 1", "stage_id": stage1, "amount": 50000,
         })
         await client.post("/api/opportunities", headers=auth_headers, json={
-            "name": "Deal 2", "stage_id": 1, "amount": 30000,
+            "name": "Deal 2", "stage_id": stage1, "amount": 30000,
         })
         resp = await client.get("/api/opportunities/pipeline", headers=auth_headers)
         assert resp.status_code == 200
         data = resp.json()
         assert "stages" in data
         assert len(data["stages"]) == 7
-        stage1 = data["stages"][0]
-        assert stage1["count"] == 2
-        assert stage1["total_amount"] == 80000.0
+        stage1_data = data["stages"][0]
+        assert stage1_data["count"] == 2
+        assert stage1_data["total_amount"] == 80000.0

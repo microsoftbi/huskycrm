@@ -1,12 +1,12 @@
 export interface Territory {
-  id: number
+  id: string
   name: string
   code?: string
   territory_type: string
-  parent_id?: number | null
+  parent_id?: string | null
   description?: string
   is_active: boolean
-  owner_id?: number | null
+  owner_id?: string | null
   created_at: string
   updated_at: string
   children: Territory[]
@@ -19,27 +19,27 @@ export interface TerritoryCreate {
   name: string
   code?: string
   territory_type?: string
-  parent_id?: number | null
+  parent_id?: string | null
   description?: string
   is_active?: boolean
-  owner_id?: number | null
+  owner_id?: string | null
 }
 
 export interface TerritoryUpdate extends Partial<TerritoryCreate> {}
 
 export interface TerritoryTreeNode {
-  id: number
+  id: string
   name: string
   code?: string
   territory_type: string
-  parent_id?: number | null
+  parent_id?: string | null
   children: TerritoryTreeNode[]
 }
 
 export interface TerritoryMember {
-  id: number
-  territory_id: number
-  user_id: number
+  id: string
+  territory_id: string
+  user_id: string
   role: string
   username?: string
   display_name?: string
@@ -47,17 +47,17 @@ export interface TerritoryMember {
 }
 
 export interface TerritoryAccount {
-  id: number
-  territory_id: number
-  account_id: number
+  id: string
+  territory_id: string
+  account_id: string
   account_name?: string
   assigned_at: string
 }
 
 export interface TerritoryProduct {
-  id: number
-  territory_id: number
-  product_id: number
+  id: string
+  territory_id: string
+  product_id: string
   price?: number | null
   is_active: boolean
   product_name?: string

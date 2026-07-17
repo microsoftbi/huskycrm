@@ -242,11 +242,11 @@ onMounted(async () => {
   if (isEdit.value) {
     loading.value = true
     try {
-      const { data } = await opportunitiesApi.get(Number(route.params.id))
+      const { data } = await opportunitiesApi.get(route.params.id as string)
       Object.assign(form, data)
 
       // Load existing line items
-      const liResp = await opportunitiesApi.listLineItems(Number(route.params.id))
+      const liResp = await opportunitiesApi.listLineItems(route.params.id as string)
       lineItems.value = liResp.data.map((li: LineItem) => ({
         _tempId: _nextTempId++,
         product_id: li.product_id,
@@ -271,7 +271,7 @@ async function handleSave() {
   saving.value = true
   try {
     if (isEdit.value) {
-      const oppId = Number(route.params.id)
+      const oppId = route.params.id as string
 
       // Update opportunity fields
       await opportunitiesApi.update(oppId, form)

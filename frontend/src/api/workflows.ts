@@ -7,7 +7,7 @@ export interface WorkflowActionConfig {
 }
 
 export interface WorkflowRule {
-  id: number
+  id: string
   name: string
   object_type: string
   trigger_event: string
@@ -28,18 +28,18 @@ export interface WorkflowCreate {
 
 export const workflowsApi = {
   list() { return apiClient.get<WorkflowRule[]>('/workflows') },
-  get(id: number) { return apiClient.get<WorkflowRule>(`/workflows/${id}`) },
+  get(id: string) { return apiClient.get<WorkflowRule>(`/workflows/${id}`) },
   create(data: WorkflowCreate) { return apiClient.post<WorkflowRule>('/workflows', data) },
-  update(id: number, data: any) { return apiClient.put<WorkflowRule>(`/workflows/${id}`, data) },
-  delete(id: number) { return apiClient.delete(`/workflows/${id}`) },
-  test(id: number, record: any) { return apiClient.post(`/workflows/${id}/test`, { record }) },
-  logs(id: number) { return apiClient.get(`/workflows/${id}/logs`) },
+  update(id: string, data: any) { return apiClient.put<WorkflowRule>(`/workflows/${id}`, data) },
+  delete(id: string) { return apiClient.delete(`/workflows/${id}`) },
+  test(id: string, record: any) { return apiClient.post(`/workflows/${id}/test`, { record }) },
+  logs(id: string) { return apiClient.get(`/workflows/${id}/logs`) },
 }
 
 // ── Reports ──
 
 export interface ReportDef {
-  id: number
+  id: string
   name: string
   object_type: string
   report_type: string
@@ -47,7 +47,7 @@ export interface ReportDef {
   grouping?: string[] | null
   aggregations?: any[] | null
   columns?: string[] | null
-  owner_id?: number
+  owner_id?: string
   created_at: string
   updated_at: string
 }
@@ -60,11 +60,11 @@ export interface ReportResult {
 
 export const reportsApi = {
   list() { return apiClient.get<ReportDef[]>('/reports') },
-  get(id: number) { return apiClient.get<ReportDef>(`/reports/${id}`) },
+  get(id: string) { return apiClient.get<ReportDef>(`/reports/${id}`) },
   create(data: any) { return apiClient.post<ReportDef>('/reports', data) },
-  update(id: number, data: any) { return apiClient.put<ReportDef>(`/reports/${id}`, data) },
-  delete(id: number) { return apiClient.delete(`/reports/${id}`) },
-  run(id: number, params?: { page?: number; page_size?: number }) {
+  update(id: string, data: any) { return apiClient.put<ReportDef>(`/reports/${id}`, data) },
+  delete(id: string) { return apiClient.delete(`/reports/${id}`) },
+  run(id: string, params?: { page?: number; page_size?: number }) {
     return apiClient.post<ReportResult>(`/reports/${id}/run`, null, { params })
   },
 }
@@ -72,9 +72,9 @@ export const reportsApi = {
 // ── Dashboards ──
 
 export interface DashboardComponent {
-  id: number
-  dashboard_id: number
-  report_id: number
+  id: string
+  dashboard_id: string
+  report_id: string
   title: string
   chart_type: string
   position_x: number
@@ -84,9 +84,9 @@ export interface DashboardComponent {
 }
 
 export interface Dashboard {
-  id: number
+  id: string
   name: string
-  owner_id?: number
+  owner_id?: string
   components: DashboardComponent[]
   created_at: string
   updated_at: string
@@ -94,13 +94,13 @@ export interface Dashboard {
 
 export const dashboardsApi = {
   list() { return apiClient.get<Dashboard[]>('/dashboards') },
-  get(id: number) { return apiClient.get<Dashboard>(`/dashboards/${id}`) },
+  get(id: string) { return apiClient.get<Dashboard>(`/dashboards/${id}`) },
   create(data: { name: string }) { return apiClient.post<Dashboard>('/dashboards', data) },
-  delete(id: number) { return apiClient.delete(`/dashboards/${id}`) },
-  addComponent(dashboardId: number, data: any) {
+  delete(id: string) { return apiClient.delete(`/dashboards/${id}`) },
+  addComponent(dashboardId: string, data: any) {
     return apiClient.post(`/dashboards/${dashboardId}/components`, data)
   },
-  deleteComponent(dashboardId: number, componentId: number) {
+  deleteComponent(dashboardId: string, componentId: string) {
     return apiClient.delete(`/dashboards/${dashboardId}/components/${componentId}`)
   },
 }

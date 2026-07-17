@@ -147,7 +147,62 @@ TEST/Unittest/
 | `TestWorkflowTest` | `test_workflow_condition_match` | 测试条件匹配 |
 | `TestWorkflowTest` | `test_workflow_condition_no_match` | 测试条件不匹配 |
 
-### 3.7 报表与仪表盘 (`test_reports.py`) — 13 个测试
+### 3.7 拜访事件 (`test_events.py`) — 30 个测试
+
+| 测试类 | 测试方法 | 验证内容 |
+|---|---|---|
+| `TestListEvents` | `test_list_empty` | 空列表返回 total=0 |
+| `TestListEvents` | `test_list_with_data` | 创建后列表包含两条记录 |
+| `TestListEvents` | `test_search_by_subject` | 按主题搜索过滤 |
+| `TestListEvents` | `test_filter_by_status` | 按状态筛选 |
+| `TestListEvents` | `test_filter_by_type` | 按类型筛选 |
+| `TestCreateEvent` | `test_create_minimal` | 最小字段创建成功 |
+| `TestCreateEvent` | `test_create_full` | 全字段创建成功 |
+| `TestCreateEvent` | `test_create_with_what_id` | 关联账户创建成功 |
+| `TestCreateEvent` | `test_create_missing_subject` | 缺少必填主题返回 422 |
+| `TestCreateEvent` | `test_create_missing_start_datetime` | 缺少必填时间返回 422 |
+| `TestGetEvent` | `test_get_by_id` | 按 ID 获取事件 |
+| `TestGetEvent` | `test_get_not_found` | 不存在返回 404 |
+| `TestUpdateEvent` | `test_update` | 更新事件字段 |
+| `TestUpdateEvent` | `test_update_not_found` | 更新不存在返回 404 |
+| `TestDeleteEvent` | `test_delete` | 删除后返回 204 |
+| `TestDeleteEvent` | `test_delete_not_found` | 删除不存在返回 404 |
+| `TestCheckInOut` | `test_check_in` | 签到成功，状态变为 in_progress |
+| `TestCheckInOut` | `test_check_in_with_location` | 签到带位置信息 |
+| `TestCheckInOut` | `test_check_in_not_planned` | 已签到事件不能重复签到 |
+| `TestCheckInOut` | `test_check_out` | 签退成功，状态变为 completed |
+| `TestCheckInOut` | `test_check_out_without_check_in` | 未签到不能签退 |
+| `TestCheckInOut` | `test_check_in_not_found` | 签到不存在的事件返回 404 |
+| `TestCheckInOut` | `test_check_out_not_found` | 签退不存在的事件返回 404 |
+| `TestTaskCRUD` | `test_create_task` | 创建任务成功 |
+| `TestTaskCRUD` | `test_list_tasks` | 列表返回所有任务 |
+| `TestTaskCRUD` | `test_update_task` | 更新任务状态 |
+| `TestTaskCRUD` | `test_delete_task` | 删除任务 |
+| `TestTaskCRUD` | `test_task_update_not_found` | 更新不存在任务返回 404 |
+| `TestTaskCRUD` | `test_task_delete_not_found` | 删除不存在任务返回 404 |
+| `TestEventHistory` | `test_account_event_history` | 按账户获取拜访历史 |
+| `TestEventHistory` | `test_opportunity_event_history` | 按商机获取拜访历史 |
+| `TestEventHistory` | `test_contact_event_history` | 按联系人获取拜访历史 |
+
+### 3.8 个人信息 (`test_profile.py`) — 11 个测试
+
+| 测试类 | 测试方法 | 验证内容 |
+|---|---|---|
+| `TestUpdateProfile` | `test_update_display_name` | 更新显示名称 |
+| `TestUpdateProfile` | `test_update_email` | 更新邮箱 |
+| `TestUpdateProfile` | `test_update_both` | 同时更新多个字段 |
+| `TestUpdateProfile` | `test_update_empty_body` | 空请求体返回 400 |
+| `TestUpdateProfile` | `test_update_unauthorized` | 未认证返回 403 |
+| `TestChangePassword` | `test_change_password_success` | 修改密码成功后可用新密码登录 |
+| `TestChangePassword` | `test_change_password_wrong_current` | 旧密码错误返回 400 |
+| `TestChangePassword` | `test_change_password_mismatch` | 两次密码不一致返回 400 |
+| `TestChangePassword` | `test_change_password_too_short` | 密码太短返回 400 |
+| `TestChangePassword` | `test_change_password_unauthorized` | 未认证返回 403 |
+| `TestMyTerritories` | `test_my_territories_empty` | 空区域返回空列表 |
+| `TestMyTerritories` | `test_my_territories_structure` | 响应结构包含所有字段 |
+| `TestMyTerritories` | `test_my_territories_unauthorized` | 未认证返回 403 |
+
+### 3.9 报表与仪表盘 (`test_reports.py`) — 13 个测试
 
 | 测试类 | 测试方法 | 验证内容 |
 |---|---|---|
@@ -164,6 +219,23 @@ TEST/Unittest/
 | `TestDashboardCRUD` | `test_delete_dashboard` | 删除仪表盘 |
 | `TestDashboardComponent` | `test_add_component` | 添加仪表盘组件 |
 | `TestDashboardComponent` | `test_delete_component` | 删除仪表盘组件 |
+
+---
+
+## 4. 测试统计
+
+| 模块 | 文件 | 测试数 |
+|---|---|---|
+| 认证 | `test_auth.py` | 10 |
+| 账户 | `test_accounts.py` | 12 |
+| 联系人 | `test_contacts.py` | 8 |
+| 销售机会 | `test_opportunities.py` | 9 |
+| 自定义对象 | `test_custom_objects.py` | 17 |
+| 工作流 | `test_workflows.py` | 13 |
+| 报表 | `test_reports.py` | 13 |
+| 拜访事件 | `test_events.py` | 30 |
+| 个人信息 | `test_profile.py` | 11 |
+| **合计** | | **124** |
 
 ---
 

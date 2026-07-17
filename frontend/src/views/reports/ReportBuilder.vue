@@ -123,7 +123,7 @@ onMounted(async () => {
   if (!isNew.value) {
     loading.value = true
     try {
-      const { data } = await reportsApi.get(Number(route.params.id))
+      const { data } = await reportsApi.get(route.params.id as string)
       form.name = data.name; form.object_type = data.object_type
       form.report_type = data.report_type; form.columns = data.columns || []
       form.filters = data.filters || []
@@ -142,7 +142,7 @@ async function handleSave() {
       await reportsApi.create(payload)
       ElMessage.success('创建成功')
     } else {
-      await reportsApi.update(Number(route.params.id), payload)
+      await reportsApi.update(route.params.id as string, payload)
       ElMessage.success('更新成功')
     }
     router.push('/admin/reports')
@@ -153,7 +153,7 @@ async function handleSave() {
 async function handleRun() {
   const payload = { ...form, filters: form.filters.length ? form.filters : null, columns: form.columns.filter(Boolean) }
   try {
-    let id = Number(route.params.id)
+    let id = route.params.id as string
     if (!id) {
       const { data } = await reportsApi.create(payload)
       id = data.id

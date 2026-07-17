@@ -108,7 +108,7 @@ const contactColumns = [
 async function fetchAccount() {
   loading.value = true
   try {
-    const { data } = await accountsApi.get(Number(route.params.id))
+    const { data } = await accountsApi.get(route.params.id as string)
     account.value = data
     // Load related contacts
     fetchContacts()
@@ -123,7 +123,7 @@ async function fetchAccount() {
 async function fetchContacts() {
   contactsLoading.value = true
   try {
-    const { data } = await contactsApi.list({ account_id: Number(route.params.id), page_size: 50 })
+    const { data } = await contactsApi.list({ account_id: route.params.id as string, page_size: 50 })
     contacts.value = data.items
     contactsTotal.value = data.total
   } finally {

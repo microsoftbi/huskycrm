@@ -260,7 +260,7 @@ function goBack() {
 async function fetchTerritory() {
   loading.value = true
   try {
-    const { data } = await territoriesApi.get(Number(route.params.id))
+    const { data } = await territoriesApi.get(route.params.id as string)
     territory.value = data
   } catch {
     ElMessage.error('区域不存在')
@@ -272,28 +272,28 @@ async function fetchTerritory() {
 
 async function fetchMembers() {
   try {
-    const { data } = await territoriesApi.listMembers(Number(route.params.id))
+    const { data } = await territoriesApi.listMembers(route.params.id as string)
     members.value = data
   } catch { /* ignore */ }
 }
 
 async function fetchAccounts() {
   try {
-    const { data } = await territoriesApi.listAccounts(Number(route.params.id))
+    const { data } = await territoriesApi.listAccounts(route.params.id as string)
     territoryAccounts.value = data
   } catch { /* ignore */ }
 }
 
 async function fetchProducts() {
   try {
-    const { data } = await territoriesApi.listProducts(Number(route.params.id))
+    const { data } = await territoriesApi.listProducts(route.params.id as string)
     territoryProducts.value = data
   } catch { /* ignore */ }
 }
 
 async function fetchPipeline() {
   try {
-    const { data } = await territoriesApi.getPipeline(Number(route.params.id))
+    const { data } = await territoriesApi.getPipeline(route.params.id as string)
     pipelineData.value = data.stages || []
   } catch { /* ignore */ }
 }
@@ -340,7 +340,7 @@ async function addMember() {
   if (!newMember.value.user_id) return
   savingMember.value = true
   try {
-    await territoriesApi.addMember(Number(route.params.id), {
+    await territoriesApi.addMember(route.params.id as string, {
       user_id: newMember.value.user_id,
       role: newMember.value.role,
     })
@@ -358,7 +358,7 @@ async function addMember() {
 
 async function removeMember(row: TerritoryMember) {
   try {
-    await territoriesApi.removeMember(Number(route.params.id), row.id)
+    await territoriesApi.removeMember(route.params.id as string, row.id)
     ElMessage.success('成员已移除')
     await fetchMembers()
     await fetchTerritory()
@@ -372,7 +372,7 @@ async function addAccount() {
   if (!newAccount.value.account_id) return
   savingAccount.value = true
   try {
-    await territoriesApi.addAccount(Number(route.params.id), {
+    await territoriesApi.addAccount(route.params.id as string, {
       account_id: newAccount.value.account_id,
     })
     ElMessage.success('账户关联成功')
@@ -389,7 +389,7 @@ async function addAccount() {
 
 async function removeAccount(row: TerritoryAccount) {
   try {
-    await territoriesApi.removeAccount(Number(route.params.id), row.account_id)
+    await territoriesApi.removeAccount(route.params.id as string, row.account_id)
     ElMessage.success('账户已解除关联')
     await fetchAccounts()
     await fetchTerritory()
@@ -403,7 +403,7 @@ async function addProduct() {
   if (!newProduct.value.product_id) return
   savingProduct.value = true
   try {
-    await territoriesApi.addProduct(Number(route.params.id), {
+    await territoriesApi.addProduct(route.params.id as string, {
       product_id: newProduct.value.product_id,
       price: newProduct.value.price,
     })
@@ -421,7 +421,7 @@ async function addProduct() {
 
 async function removeProduct(row: TerritoryProduct) {
   try {
-    await territoriesApi.removeProduct(Number(route.params.id), row.product_id)
+    await territoriesApi.removeProduct(route.params.id as string, row.product_id)
     ElMessage.success('产品已移除')
     await fetchProducts()
     await fetchTerritory()

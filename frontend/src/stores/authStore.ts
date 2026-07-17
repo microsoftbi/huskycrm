@@ -16,6 +16,9 @@ export const useAuthStore = defineStore('auth', () => {
       localStorage.setItem('access_token', data.access_token)
       localStorage.setItem('refresh_token', data.refresh_token)
       await fetchUser()
+      if (!user.value) {
+        throw new Error('Failed to fetch user profile')
+      }
       return true
     } finally {
       loading.value = false
@@ -36,13 +39,16 @@ export const useAuthStore = defineStore('auth', () => {
     const token = localStorage.getItem('access_token')
     if (!token) {
       user.value = null
-      return
+      return false
     }
     try {
       const { data } = await authApi.me()
       user.value = data
-    } catch {
+      return true
+    } catch (e) {
       user.value = null
+      console.error('fetchUser failed:', e)
+      return false
     }
   }
 

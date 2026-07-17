@@ -102,16 +102,16 @@ const newComponent = reactive({
 })
 
 const compRows = computed(() => {
-  const result: Record<number, any[]> = {}
+  const result: Record<string, any[]> = {}
   Object.entries(compData).forEach(([id, data]) => {
     if (data) {
-      result[Number(id)] = data.rows.map((row: any[]) => {
+      result[id] = data.rows.map((row: any[]) => {
         const obj: Record<string, any> = {}
         data.columns.forEach((col, i) => { obj[col] = row[i] })
         return obj
       })
     } else {
-      result[Number(id)] = []
+      result[id] = []
     }
   })
   return result

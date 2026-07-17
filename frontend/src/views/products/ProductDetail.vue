@@ -59,7 +59,7 @@ const systemFields = computed(() => [
 async function fetchProduct() {
   loading.value = true
   try {
-    const { data } = await productsApi.get(Number(route.params.id))
+    const { data } = await productsApi.get(route.params.id as string)
     product.value = data
   } catch {
     ElMessage.error('产品不存在')

@@ -59,7 +59,7 @@ async def create_product(
 
 @router.get("/{product_id}", response_model=ProductOut)
 async def get_product(
-    product_id: int,
+    product_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -72,7 +72,7 @@ async def get_product(
 
 @router.put("/{product_id}", response_model=ProductOut)
 async def update_product(
-    product_id: int,
+    product_id: str,
     payload: ProductUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -92,7 +92,7 @@ async def update_product(
 
 @router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_product(
-    product_id: int,
+    product_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):

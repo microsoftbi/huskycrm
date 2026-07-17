@@ -1,5 +1,5 @@
 export interface Account {
-  id: number
+  id: string
   name: string
   industry?: string
   phone?: string
@@ -11,7 +11,7 @@ export interface Account {
   billing_zip?: string
   billing_country?: string
   description?: string
-  owner_id?: number
+  owner_id?: string
   created_at: string
   updated_at: string
 }
@@ -28,13 +28,13 @@ export interface AccountCreate {
   billing_zip?: string
   billing_country?: string
   description?: string
-  owner_id?: number
+  owner_id?: string
 }
 
 export interface AccountUpdate extends Partial<AccountCreate> {}
 
 export interface Contact {
-  id: number
+  id: string
   first_name: string
   last_name: string
   email?: string
@@ -42,8 +42,8 @@ export interface Contact {
   mobile_phone?: string
   title?: string
   department?: string
-  account_id?: number
-  owner_id?: number
+  account_id?: string
+  owner_id?: string
   created_at: string
   updated_at: string
 }
@@ -56,14 +56,14 @@ export interface ContactCreate {
   mobile_phone?: string
   title?: string
   department?: string
-  account_id?: number
-  owner_id?: number
+  account_id?: string
+  owner_id?: string
 }
 
 export interface ContactUpdate extends Partial<ContactCreate> {}
 
 export interface Product {
-  id: number
+  id: string
   name: string
   product_code?: string
   description?: string
@@ -71,7 +71,7 @@ export interface Product {
   cost?: number
   category?: string
   is_active?: boolean
-  owner_id?: number
+  owner_id?: string
   created_at: string
   updated_at: string
 }
@@ -84,13 +84,13 @@ export interface ProductCreate {
   cost?: number
   category?: string
   is_active?: boolean
-  owner_id?: number
+  owner_id?: string
 }
 
 export interface ProductUpdate extends Partial<ProductCreate> {}
 
 export interface Stage {
-  id: number
+  id: string
   name: string
   probability: number
   sort_order: number
@@ -99,28 +99,28 @@ export interface Stage {
 }
 
 export interface Opportunity {
-  id: number
+  id: string
   name: string
-  account_id?: number
-  stage_id: number
+  account_id?: string
+  stage_id: string
   amount?: number
   probability?: number
   close_date?: string
   description?: string
-  owner_id?: number
+  owner_id?: string
   created_at: string
   updated_at: string
 }
 
 export interface OpportunityCreate {
   name: string
-  account_id?: number
-  stage_id: number
+  account_id?: string
+  stage_id: string
   amount?: number
   probability?: number
   close_date?: string
   description?: string
-  owner_id?: number
+  owner_id?: string
 }
 
 export interface OpportunityUpdate extends Partial<OpportunityCreate> {}
@@ -144,9 +144,9 @@ export interface PaginatedResponse<T> {
 }
 
 export interface LineItem {
-  id: number
-  opportunity_id: number
-  product_id: number
+  id: string
+  opportunity_id: string
+  product_id: string
   quantity: number
   unit_price: number
   total_price: number
@@ -154,7 +154,7 @@ export interface LineItem {
 }
 
 export interface LineItemCreate {
-  product_id: number
+  product_id: string
   quantity: number
   unit_price: number
 }
@@ -162,8 +162,8 @@ export interface LineItemCreate {
 // ── Custom Objects ────────────────────────────────────────────────
 
 export interface CustomFieldDef {
-  id: number
-  object_id: number
+  id: string
+  object_id: string
   api_name: string
   label: string
   field_type: string
@@ -174,14 +174,14 @@ export interface CustomFieldDef {
   picklist_values?: string[] | null
   precision_total?: number | null
   precision_scale?: number | null
-  lookup_object_id?: number | null
+  lookup_object_id?: string | null
   display_order: number
   created_at: string
   updated_at: string
 }
 
 export interface CustomObjectDef {
-  id: number
+  id: string
   api_name: string
   label: string
   plural_label?: string
@@ -204,7 +204,7 @@ export interface CustomFieldCreate {
   picklist_values?: string[] | null
   precision_total?: number | null
   precision_scale?: number | null
-  lookup_object_id?: number | null
+  lookup_object_id?: string | null
   display_order?: number
 }
 
@@ -217,9 +217,9 @@ export interface CustomObjectCreate {
 }
 
 export interface CustomRecord {
-  id: number
+  id: string
   record_id: string
-  owner_id?: number | null
+  owner_id?: string | null
   fields: Record<string, any>
   created_at: string
   updated_at: string

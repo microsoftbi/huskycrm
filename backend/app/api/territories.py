@@ -21,7 +21,7 @@ router = APIRouter(prefix="/api/territories", tags=["territories"])
 
 # ── Helpers ──────────────────────────────────────────────────────────
 
-async def _build_tree(territories: list[Territory], parent_id: int | None = None) -> list[TerritoryTreeNode]:
+async def _build_tree(territories: list[Territory], parent_id: str | None = None) -> list[TerritoryTreeNode]:
     """Build tree from flat list of territories."""
     nodes = []
     for t in territories:
@@ -33,6 +33,19 @@ async def _build_tree(territories: list[Territory], parent_id: int | None = None
                 parent_id=t.parent_id, children=children,
             ))
     return nodes
+
+
+def _make_territory_out(t: Territory, children: list = None,
+                        member_count: int = 0, account_count: int = 0, product_count: int = 0):
+    """Build TerritoryOut without triggering async lazy loading on children."""
+    data = {c.name: getattr(t, c.name) for c in t.__table__.columns}
+    return TerritoryOut(
+        **data,
+        children=children or [],
+        member_count=member_count,
+        account_count=account_count,
+        product_count=product_count,
+    )
 
 
 # ── CRUD ─────────────────────────────────────────────────────────────
@@ -61,13 +74,11 @@ async def list_territories(
         product_count = await db.scalar(
             select(func.count(TerritoryProduct.id)).where(TerritoryProduct.territory_id == t.id)
         )
-        out.append(TerritoryOut(
-            **{c.name: getattr(t, c.name) for c in t.__table__.columns},
-            children=[TerritoryOut.model_validate(c) for c in t.children or []],
-            member_count=member_count or 0,
-            account_count=account_count or 0,
-            product_count=product_count or 0,
-        ))
+        children = [_make_territory_out(c) for c in (t.children or [])]
+        out.append(_make_territory_out(t, children=children,
+                                       member_count=member_count or 0,
+                                       account_count=account_count or 0,
+                                       product_count=product_count or 0))
     return out
 
 
@@ -105,7 +116,7 @@ async def create_territory(
 
 @router.get("/{territory_id}", response_model=TerritoryOut)
 async def get_territory(
-    territory_id: int,
+    territory_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -128,9 +139,9 @@ async def get_territory(
         select(func.count(TerritoryProduct.id)).where(TerritoryProduct.territory_id == territory_id)
     )
 
-    return TerritoryOut(
-        **{c.name: getattr(territory, c.name) for c in territory.__table__.columns},
-        children=[TerritoryOut.model_validate(c) for c in territory.children or []],
+    return _make_territory_out(
+        territory,
+        children=[_make_territory_out(c) for c in (territory.children or [])],
         member_count=member_count or 0,
         account_count=account_count or 0,
         product_count=product_count or 0,
@@ -139,7 +150,7 @@ async def get_territory(
 
 @router.put("/{territory_id}", response_model=TerritoryOut)
 async def update_territory(
-    territory_id: int,
+    territory_id: str,
     payload: TerritoryUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -174,9 +185,9 @@ async def update_territory(
         select(func.count(TerritoryProduct.id)).where(TerritoryProduct.territory_id == territory_id)
     )
 
-    return TerritoryOut(
-        **{c.name: getattr(territory, c.name) for c in territory.__table__.columns},
-        children=[TerritoryOut.model_validate(c) for c in territory.children or []],
+    return _make_territory_out(
+        territory,
+        children=[_make_territory_out(c) for c in (territory.children or [])],
         member_count=member_count or 0,
         account_count=account_count or 0,
         product_count=product_count or 0,
@@ -185,7 +196,7 @@ async def update_territory(
 
 @router.delete("/{territory_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_territory(
-    territory_id: int,
+    territory_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -201,7 +212,7 @@ async def delete_territory(
 
 @router.get("/{territory_id}/members", response_model=list[TerritoryMemberOut])
 async def list_members(
-    territory_id: int,
+    territory_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -229,7 +240,7 @@ async def list_members(
 
 @router.post("/{territory_id}/members", response_model=TerritoryMemberOut, status_code=status.HTTP_201_CREATED)
 async def add_member(
-    territory_id: int,
+    territory_id: str,
     payload: TerritoryMemberCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -265,8 +276,8 @@ async def add_member(
 
 @router.delete("/{territory_id}/members/{member_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_member(
-    territory_id: int,
-    member_id: int,
+    territory_id: str,
+    member_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -287,7 +298,7 @@ async def remove_member(
 
 @router.get("/{territory_id}/accounts", response_model=list[TerritoryAccountOut])
 async def list_territory_accounts(
-    territory_id: int,
+    territory_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -313,7 +324,7 @@ async def list_territory_accounts(
 
 @router.post("/{territory_id}/accounts", response_model=TerritoryAccountOut, status_code=status.HTTP_201_CREATED)
 async def add_territory_account(
-    territory_id: int,
+    territory_id: str,
     payload: TerritoryAccountCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -347,8 +358,8 @@ async def add_territory_account(
 
 @router.delete("/{territory_id}/accounts/{account_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_territory_account(
-    territory_id: int,
-    account_id: int,
+    territory_id: str,
+    account_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -369,7 +380,7 @@ async def remove_territory_account(
 
 @router.get("/{territory_id}/products", response_model=list[TerritoryProductOut])
 async def list_territory_products(
-    territory_id: int,
+    territory_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -398,7 +409,7 @@ async def list_territory_products(
 
 @router.post("/{territory_id}/products", response_model=TerritoryProductOut, status_code=status.HTTP_201_CREATED)
 async def add_territory_product(
-    territory_id: int,
+    territory_id: str,
     payload: TerritoryProductCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -438,8 +449,8 @@ async def add_territory_product(
 
 @router.put("/{territory_id}/products/{product_id}", response_model=TerritoryProductOut)
 async def update_territory_product(
-    territory_id: int,
-    product_id: int,
+    territory_id: str,
+    product_id: str,
     payload: TerritoryProductUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -473,8 +484,8 @@ async def update_territory_product(
 
 @router.delete("/{territory_id}/products/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_territory_product(
-    territory_id: int,
-    product_id: int,
+    territory_id: str,
+    product_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -495,7 +506,7 @@ async def remove_territory_product(
 
 @router.get("/{territory_id}/pipeline", response_model=PipelineOut)
 async def get_territory_pipeline(
-    territory_id: int,
+    territory_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):

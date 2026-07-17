@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, and_
 
 from app.database import get_db
 from app.models.auth import User
+from app.models.territory import Territory, TerritoryMember
 from app.schemas.auth import (
-    UserRegister, UserLogin, TokenResponse, RefreshRequest, UserOut
+    UserRegister, UserLogin, TokenResponse, RefreshRequest, UserOut,
+    ProfileUpdate, PasswordChange, UserTerritoryOut,
 )
 from app.core.security import (
     hash_password, verify_password, create_access_token, create_refresh_token, decode_token
@@ -89,3 +91,89 @@ async def list_users(
 ):
     result = await db.execute(select(User).order_by(User.username))
     return result.scalars().all()
+
+
+@router.put("/profile", response_model=UserOut)
+async def update_profile(
+    payload: ProfileUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    update_data = payload.model_dump(exclude_unset=True)
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No fields to update")
+
+    for field, value in update_data.items():
+        setattr(current_user, field, value)
+
+    await db.commit()
+    await db.refresh(current_user)
+    return current_user
+
+
+@router.put("/password", status_code=status.HTTP_200_OK)
+async def change_password(
+    payload: PasswordChange,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    if payload.new_password != payload.confirm_password:
+        raise HTTPException(status_code=400, detail="New passwords do not match")
+
+    if len(payload.new_password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+
+    if not verify_password(payload.current_password, current_user.password_hash):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+
+    current_user.password_hash = hash_password(payload.new_password)
+    await db.commit()
+    return {"message": "Password updated successfully"}
+
+
+@router.get("/my-territories", response_model=list[UserTerritoryOut])
+async def get_my_territories(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    # Find all territory memberships for the current user
+    result = await db.execute(
+        select(TerritoryMember).where(TerritoryMember.user_id == current_user.id)
+    )
+    memberships = result.scalars().all()
+
+    out = []
+    for mem in memberships:
+        territory = await db.get(Territory, mem.territory_id)
+        if not territory:
+            continue
+
+        # Find the manager of this territory
+        mgr_result = await db.execute(
+            select(TerritoryMember).where(
+                and_(
+                    TerritoryMember.territory_id == mem.territory_id,
+                    TerritoryMember.role == "manager",
+                )
+            )
+        )
+        mgr_member = mgr_result.scalar_one_or_none()
+        manager_name = None
+        manager_username = None
+        if mgr_member:
+            mgr_user = await db.get(User, mgr_member.user_id)
+            if mgr_user:
+                manager_name = mgr_user.display_name
+                manager_username = mgr_user.username
+
+        out.append(UserTerritoryOut(
+            territory_id=territory.id,
+            territory_name=territory.name,
+            territory_code=territory.code,
+            territory_type=territory.territory_type or "region",
+            role=mem.role,
+            manager_name=manager_name,
+            manager_username=manager_username,
+        ))
+
+    return out

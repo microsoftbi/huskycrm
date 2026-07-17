@@ -80,6 +80,26 @@ const router = createRouter({
           component: () => import('../views/products/ProductForm.vue'),
         },
         {
+          path: 'events',
+          name: 'EventList',
+          component: () => import('../views/events/EventList.vue'),
+        },
+        {
+          path: 'events/new',
+          name: 'EventCreate',
+          component: () => import('../views/events/EventForm.vue'),
+        },
+        {
+          path: 'events/:id',
+          name: 'EventDetail',
+          component: () => import('../views/events/EventDetail.vue'),
+        },
+        {
+          path: 'events/:id/edit',
+          name: 'EventEdit',
+          component: () => import('../views/events/EventForm.vue'),
+        },
+        {
           path: 'opportunities',
           name: 'OpportunityList',
           component: () => import('../views/opportunities/OpportunityList.vue'),
@@ -135,19 +155,12 @@ const router = createRouter({
           component: () => import('../views/territories/TerritoryList.vue'),
         },
         {
-          path: 'admin/territories/new',
-          name: 'TerritoryCreate',
-          component: () => import('../views/territories/TerritoryForm.vue'),
-        },
-        {
           path: 'admin/territories/:id',
-          name: 'TerritoryDetail',
-          component: () => import('../views/territories/TerritoryDetail.vue'),
+          redirect: '/admin/territories',
         },
         {
           path: 'admin/territories/:id/edit',
-          name: 'TerritoryEdit',
-          component: () => import('../views/territories/TerritoryForm.vue'),
+          redirect: '/admin/territories',
         },
         {
           path: 'admin/workflows',
@@ -183,6 +196,11 @@ const router = createRouter({
           path: 'admin/dashboards',
           name: 'DashboardPage',
           component: () => import('../views/reports/DashboardPage.vue'),
+        },
+        {
+          path: 'profile',
+          name: 'Profile',
+          component: () => import('../views/profile/ProfilePage.vue'),
         },
       ],
     },

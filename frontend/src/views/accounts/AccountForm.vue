@@ -122,7 +122,7 @@ onMounted(async () => {
   if (isEdit.value) {
     loading.value = true
     try {
-      const { data } = await accountsApi.get(Number(route.params.id))
+      const { data } = await accountsApi.get(route.params.id as string)
       Object.assign(form, data)
     } catch {
       ElMessage.error('账户不存在')
@@ -139,7 +139,7 @@ async function handleSave() {
   saving.value = true
   try {
     if (isEdit.value) {
-      await accountsApi.update(Number(route.params.id), form)
+      await accountsApi.update(route.params.id as string, form)
       ElMessage.success('更新成功')
       router.push(`/accounts/${route.params.id}`)
     } else {

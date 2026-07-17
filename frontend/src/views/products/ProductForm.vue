@@ -97,7 +97,7 @@ onMounted(async () => {
   if (isEdit.value) {
     loading.value = true
     try {
-      const { data } = await productsApi.get(Number(route.params.id))
+      const { data } = await productsApi.get(route.params.id as string)
       Object.assign(form, data)
     } catch {
       ElMessage.error('产品不存在')
@@ -112,7 +112,7 @@ async function handleSave() {
   saving.value = true
   try {
     if (isEdit.value) {
-      await productsApi.update(Number(route.params.id), form)
+      await productsApi.update(route.params.id as string, form)
       ElMessage.success('更新成功')
       router.push(`/products/${route.params.id}`)
     } else {

@@ -3,6 +3,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from app.database import Base
+from app.utils.id_gen import generate_id
 
 
 class CustomObjectDef(Base):
@@ -12,7 +13,7 @@ class CustomObjectDef(Base):
     """
     __tablename__ = "custom_object_defs"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String(36), primary_key=True, default=lambda: generate_id("cod_"))
     api_name = Column(String(120), unique=True, nullable=False, index=True)  # e.g. "custom_invoice"
     label = Column(String(255), nullable=False)                               # e.g. "发票"
     plural_label = Column(String(255))
@@ -35,8 +36,8 @@ class CustomFieldDef(Base):
     """
     __tablename__ = "custom_field_defs"
 
-    id = Column(Integer, primary_key=True, index=True)
-    object_id = Column(Integer, ForeignKey("custom_object_defs.id"), nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: generate_id("cfd_"))
+    object_id = Column(String(36), ForeignKey("custom_object_defs.id"), nullable=False)
     api_name = Column(String(120), nullable=False)       # e.g. "amount"
     label = Column(String(255), nullable=False)           # e.g. "金额"
     field_type = Column(String(50), nullable=False)       # text, number, date, picklist, boolean, textarea, email, phone, url, lookup
@@ -47,7 +48,7 @@ class CustomFieldDef(Base):
     picklist_values = Column(Text)                       # JSON array for picklist options
     precision_total = Column(Integer)                    # for number type: total digits
     precision_scale = Column(Integer)                    # for number type: decimal places
-    lookup_object_id = Column(Integer, ForeignKey("custom_object_defs.id"))
+    lookup_object_id = Column(String(36), ForeignKey("custom_object_defs.id"))
     display_order = Column(Integer, default=0)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())

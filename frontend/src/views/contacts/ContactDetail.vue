@@ -73,7 +73,7 @@ const systemFields = computed(() => [
 async function fetchContact() {
   loading.value = true
   try {
-    const { data } = await contactsApi.get(Number(route.params.id))
+    const { data } = await contactsApi.get(route.params.id as string)
     contact.value = data
   } catch {
     ElMessage.error('联系人不存在')

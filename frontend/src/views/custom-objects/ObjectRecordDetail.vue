@@ -116,8 +116,8 @@ const showEdit = ref(false)
 const editForm = reactive<Record<string, any>>({})
 const editFormRef = ref()
 
-const objId = Number(route.params.id)
-const recordId = Number(route.params.record_id)
+const objId = route.params.id as string
+const recordId = route.params.record_id as string
 
 function getFieldLabel(apiName: string): string {
   return object.value?.fields?.find(f => f.api_name === apiName)?.label || apiName

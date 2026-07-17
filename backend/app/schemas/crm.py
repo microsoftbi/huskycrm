@@ -15,7 +15,7 @@ class AccountBase(BaseModel):
     billing_zip: Optional[str] = None
     billing_country: Optional[str] = None
     description: Optional[str] = None
-    owner_id: Optional[int] = None
+    owner_id: Optional[str] = None
 
 
 class AccountCreate(AccountBase):
@@ -27,7 +27,7 @@ class AccountUpdate(AccountBase):
 
 
 class AccountOut(AccountBase):
-    id: int
+    id: str
     created_at: datetime
     updated_at: datetime
 
@@ -43,8 +43,8 @@ class ContactBase(BaseModel):
     mobile_phone: Optional[str] = None
     title: Optional[str] = None
     department: Optional[str] = None
-    account_id: Optional[int] = None
-    owner_id: Optional[int] = None
+    account_id: Optional[str] = None
+    owner_id: Optional[str] = None
 
 
 class ContactCreate(ContactBase):
@@ -57,7 +57,9 @@ class ContactUpdate(ContactBase):
 
 
 class ContactOut(ContactBase):
-    id: int
+    id: str
+    account_name: Optional[str] = None
+    accounts: list["ContactAccountOut"] = []
     created_at: datetime
     updated_at: datetime
 
@@ -65,8 +67,23 @@ class ContactOut(ContactBase):
         from_attributes = True
 
 
+class ContactAccountOut(BaseModel):
+    id: str
+    contact_id: str
+    account_id: str
+    account_name: Optional[str] = None
+    assigned_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class ContactAccountCreate(BaseModel):
+    account_id: str
+
+
 class StageOut(BaseModel):
-    id: int
+    id: str
     name: str
     probability: int
     sort_order: int
@@ -79,13 +96,13 @@ class StageOut(BaseModel):
 
 class OpportunityBase(BaseModel):
     name: str
-    account_id: Optional[int] = None
-    stage_id: int
+    account_id: Optional[str] = None
+    stage_id: str
     amount: Optional[float] = 0.0
     probability: Optional[int] = 0
     close_date: Optional[date] = None
     description: Optional[str] = None
-    owner_id: Optional[int] = None
+    owner_id: Optional[str] = None
 
 
 class OpportunityCreate(OpportunityBase):
@@ -94,17 +111,17 @@ class OpportunityCreate(OpportunityBase):
 
 class OpportunityUpdate(BaseModel):
     name: Optional[str] = None
-    account_id: Optional[int] = None
-    stage_id: Optional[int] = None
+    account_id: Optional[str] = None
+    stage_id: Optional[str] = None
     amount: Optional[float] = None
     probability: Optional[int] = None
     close_date: Optional[date] = None
     description: Optional[str] = None
-    owner_id: Optional[int] = None
+    owner_id: Optional[str] = None
 
 
 class OpportunityProductBase(BaseModel):
-    product_id: int
+    product_id: str
     quantity: int = 1
     unit_price: float = 0.0
     total_price: float = 0.0
@@ -115,8 +132,8 @@ class OpportunityProductCreate(OpportunityProductBase):
 
 
 class OpportunityProductOut(OpportunityProductBase):
-    id: int
-    opportunity_id: int
+    id: str
+    opportunity_id: str
     created_at: datetime
 
     class Config:
@@ -124,7 +141,7 @@ class OpportunityProductOut(OpportunityProductBase):
 
 
 class OpportunityOut(OpportunityBase):
-    id: int
+    id: str
     created_at: datetime
     updated_at: datetime
     line_items: list[OpportunityProductOut] = []
@@ -152,7 +169,7 @@ class ProductBase(BaseModel):
     cost: Optional[float] = 0.0
     category: Optional[str] = None
     is_active: Optional[bool] = True
-    owner_id: Optional[int] = None
+    owner_id: Optional[str] = None
 
 
 class ProductCreate(ProductBase):
@@ -164,7 +181,7 @@ class ProductUpdate(ProductBase):
 
 
 class ProductOut(ProductBase):
-    id: int
+    id: str
     created_at: datetime
     updated_at: datetime
 

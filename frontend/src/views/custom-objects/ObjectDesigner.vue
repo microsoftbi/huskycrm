@@ -170,7 +170,7 @@ onMounted(async () => {
   if (!isNew.value) {
     loading.value = true
     try {
-      const { data } = await customObjectsApi.getObject(Number(route.params.id))
+      const { data } = await customObjectsApi.getObject(route.params.id as string)
       object.value = data
       form.api_name = data.api_name
       form.label = data.label

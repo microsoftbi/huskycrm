@@ -23,7 +23,27 @@
         </el-input>
       </div>
 
-      <el-table :data="contacts" stripe v-loading="loading" class="sf-table-compact" size="small" style="width:100%">
+      <el-table :data="contacts" stripe v-loading="loading" class="sf-table-compact" size="small" style="width:100%"
+        @expand-change="onExpandChange"
+        :row-key="(row: any) => row.id">
+        <el-table-column type="expand" width="40">
+          <template #default="{ row }">
+            <div class="sf-expand-accounts">
+              <div class="sf-expand-title">关联账户</div>
+              <el-table v-if="row.accounts && row.accounts.length" :data="row.accounts" size="small" stripe class="sf-sub-table">
+                <el-table-column label="账户名称" min-width="200">
+                  <template #default="{ row: acc }">
+                    <router-link :to="`/accounts/${acc.account_id}`">
+                      <el-link type="primary">{{ acc.account_name || '-' }}</el-link>
+                    </router-link>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="assigned_at" label="关联时间" width="200" />
+              </el-table>
+              <div v-else class="sf-expand-empty">暂无关联账户</div>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column type="index" label="#" width="60" />
         <el-table-column label="姓名" min-width="180">
           <template #default="{ row }">
@@ -88,9 +108,17 @@ async function handleDelete(row: Contact) {
   } catch { /* cancelled */ }
 }
 
+function onExpandChange(row: any, expandedRows: any[]) {
+  // Optional: track expanded state if needed
+}
+
 onMounted(fetchContacts)
 </script>
 
 <style scoped>
 .contact-list { max-width: 1200px; }
+.sf-expand-accounts { padding: 12px 24px; background: #fafafa; }
+.sf-expand-title { font-size: 12px; font-weight: 700; color: #514f4d; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+.sf-sub-table { border: 1px solid #dddbda; border-radius: 3px; }
+.sf-expand-empty { color: #706e6b; font-size: 13px; padding: 16px 0; text-align: center; }
 </style>

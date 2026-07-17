@@ -5,16 +5,22 @@ export const accountsApi = {
   list(params: { page?: number; page_size?: number; search?: string } = {}) {
     return apiClient.get<PaginatedResponse<Account>>('/accounts', { params })
   },
-  get(id: number) {
+  get(id: string) {
     return apiClient.get<Account>(`/accounts/${id}`)
   },
   create(data: AccountCreate) {
     return apiClient.post<Account>('/accounts', data)
   },
-  update(id: number, data: AccountUpdate) {
+  update(id: string, data: AccountUpdate) {
     return apiClient.put<Account>(`/accounts/${id}`, data)
   },
-  delete(id: number) {
+  delete(id: string) {
     return apiClient.delete(`/accounts/${id}`)
+  },
+  listTerritories(accountId: string) {
+    return apiClient.get<any[]>(`/accounts/${accountId}/territories`)
+  },
+  listEvents(accountId: string) {
+    return apiClient.get<import('../types/event').Event[]>(`/events/by-account/${accountId}`)
   },
 }

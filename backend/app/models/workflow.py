@@ -3,13 +3,14 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from app.database import Base
+from app.utils.id_gen import generate_id
 
 
 class WorkflowRule(Base):
     """Defines an automated workflow rule."""
     __tablename__ = "workflow_rules"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String(36), primary_key=True, default=lambda: generate_id("wf_"))
     name = Column(String(255), nullable=False)
     object_type = Column(String(120), nullable=False, index=True)  # "account", "contact", "opportunity", or custom API name
     trigger_event = Column(String(50), nullable=False)              # "create", "update", "create_or_update"
@@ -26,8 +27,8 @@ class WorkflowAction(Base):
     """An action to execute when a workflow rule's conditions are met."""
     __tablename__ = "workflow_actions"
 
-    id = Column(Integer, primary_key=True, index=True)
-    workflow_id = Column(Integer, ForeignKey("workflow_rules.id"), nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: generate_id("wfa_"))
+    workflow_id = Column(String(36), ForeignKey("workflow_rules.id"), nullable=False)
     action_type = Column(String(50), nullable=False)      # "update_field", "create_record", "send_notification"
     action_config = Column(Text, nullable=False)           # JSON config
     display_order = Column(Integer, default=0)
@@ -39,10 +40,10 @@ class WorkflowExecutionLog(Base):
     """Audit trail of workflow rule executions."""
     __tablename__ = "workflow_execution_logs"
 
-    id = Column(Integer, primary_key=True, index=True)
-    workflow_id = Column(Integer, ForeignKey("workflow_rules.id"), nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: generate_id("wfl_"))
+    workflow_id = Column(String(36), ForeignKey("workflow_rules.id"), nullable=False)
     object_type = Column(String(120), nullable=False)
-    record_id = Column(Integer, nullable=False)
+    record_id = Column(String(36), nullable=False)
     workflow_name = Column(String(255))
     conditions_met = Column(Boolean, default=False)
     action_executed = Column(Boolean, default=False)

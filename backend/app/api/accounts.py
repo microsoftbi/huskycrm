@@ -59,7 +59,7 @@ async def create_account(
 
 @router.get("/{account_id}", response_model=AccountOut)
 async def get_account(
-    account_id: int,
+    account_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -72,7 +72,7 @@ async def get_account(
 
 @router.put("/{account_id}", response_model=AccountOut)
 async def update_account(
-    account_id: int,
+    account_id: str,
     payload: AccountUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -92,7 +92,7 @@ async def update_account(
 
 @router.delete("/{account_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_account(
-    account_id: int,
+    account_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):

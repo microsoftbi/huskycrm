@@ -133,7 +133,7 @@ onMounted(async () => {
   if (!isNew.value) {
     loading.value = true
     try {
-      const { data } = await workflowsApi.get(Number(route.params.id))
+      const { data } = await workflowsApi.get(route.params.id as string)
       form.name = data.name
       form.object_type = data.object_type
       form.trigger_event = data.trigger_event
@@ -154,7 +154,7 @@ async function handleSave() {
       await workflowsApi.create({ ...form, condition_expression: form.condition_expression.length > 0 ? form.condition_expression : null })
       ElMessage.success('创建成功')
     } else {
-      await workflowsApi.update(Number(route.params.id), { name: form.name, condition_expression: form.condition_expression })
+      await workflowsApi.update(route.params.id as string, { name: form.name, condition_expression: form.condition_expression })
       ElMessage.success('更新成功')
     }
     router.push('/admin/workflows')

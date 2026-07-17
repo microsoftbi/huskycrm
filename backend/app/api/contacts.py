@@ -16,7 +16,7 @@ async def list_contacts(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     search: str = Query("", max_length=255),
-    account_id: int | None = Query(None),
+    account_id: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -68,7 +68,7 @@ async def create_contact(
 
 @router.get("/{contact_id}", response_model=ContactOut)
 async def get_contact(
-    contact_id: int,
+    contact_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -81,7 +81,7 @@ async def get_contact(
 
 @router.put("/{contact_id}", response_model=ContactOut)
 async def update_contact(
-    contact_id: int,
+    contact_id: str,
     payload: ContactUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -101,7 +101,7 @@ async def update_contact(
 
 @router.delete("/{contact_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_contact(
-    contact_id: int,
+    contact_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):

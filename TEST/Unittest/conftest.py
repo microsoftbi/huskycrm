@@ -8,11 +8,12 @@ import asyncio
 import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
-from sqlalchemy import text
+from sqlalchemy import text, select
 
 from app.database import engine, async_session, Base
 from app.main import app
 from app.config import settings
+from app.models.crm import Stage
 
 # Force in-memory SQLite for tests
 settings.database_url = "sqlite+aiosqlite://"
@@ -63,20 +64,35 @@ async def _seed_stages():
     """Insert default pipeline stages directly into the DB."""
     async with async_session() as session:
         for s in STAGES:
-            await session.execute(
-                text("INSERT INTO stages (name, probability, sort_order, is_closed_won, is_closed_lost) "
-                     "VALUES (:name, :prob, :order, :won, :lost)"),
-                {"name": s["name"], "prob": s["probability"], "order": s["sort_order"],
-                 "won": s.get("is_closed_won", False), "lost": s.get("is_closed_lost", False)},
+            stage = Stage(
+                name=s["name"],
+                probability=s["probability"],
+                sort_order=s["sort_order"],
+                is_closed_won=s.get("is_closed_won", False),
+                is_closed_lost=s.get("is_closed_lost", False),
             )
+            session.add(stage)
         await session.commit()
 
 
 @pytest_asyncio.fixture
 async def seeded_stages():
-    """Seed pipeline stages and return the list."""
-    await _seed_stages()
-    return STAGES
+    """Seed pipeline stages and return the list of stages with IDs."""
+    async with async_session() as session:
+        for s in STAGES:
+            stage = Stage(
+                name=s["name"],
+                probability=s["probability"],
+                sort_order=s["sort_order"],
+                is_closed_won=s.get("is_closed_won", False),
+                is_closed_lost=s.get("is_closed_lost", False),
+            )
+            session.add(stage)
+        await session.commit()
+    # Fetch back to get generated IDs
+    async with async_session() as session:
+        result = await session.execute(select(Stage).order_by(Stage.sort_order))
+        return result.scalars().all()
 
 
 # ── Test client ────────────────────────────────────────────────────

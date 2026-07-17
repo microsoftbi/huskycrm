@@ -96,7 +96,9 @@ function handleQuickCreate(cmd: string) {
 }
 
 function handleCommand(command: string) {
-  if (command === 'logout') {
+  if (command === 'profile') {
+    router.push('/profile')
+  } else if (command === 'logout') {
     auth.logout()
     router.push('/login')
   }

@@ -147,7 +147,7 @@ async function moveToStage(stageId: number) {
 async function fetchOpportunity() {
   loading.value = true
   try {
-    const { data } = await opportunitiesApi.get(Number(route.params.id))
+    const { data } = await opportunitiesApi.get(route.params.id as string)
     opportunity.value = data
   } catch {
     ElMessage.error('机会不存在')

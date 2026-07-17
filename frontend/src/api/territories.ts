@@ -10,16 +10,16 @@ export const territoriesApi = {
   list(params: { search?: string } = {}) {
     return apiClient.get<Territory[]>('/territories', { params })
   },
-  get(id: number) {
+  get(id: string) {
     return apiClient.get<Territory>(`/territories/${id}`)
   },
   create(data: TerritoryCreate) {
     return apiClient.post<Territory>('/territories', data)
   },
-  update(id: number, data: TerritoryUpdate) {
+  update(id: string, data: TerritoryUpdate) {
     return apiClient.put<Territory>(`/territories/${id}`, data)
   },
-  delete(id: number) {
+  delete(id: string) {
     return apiClient.delete(`/territories/${id}`)
   },
 
@@ -29,43 +29,43 @@ export const territoriesApi = {
   },
 
   // ── Members ──
-  listMembers(territoryId: number) {
+  listMembers(territoryId: string) {
     return apiClient.get<TerritoryMember[]>(`/territories/${territoryId}/members`)
   },
-  addMember(territoryId: number, data: { user_id: number; role?: string }) {
+  addMember(territoryId: string, data: { user_id: string; role?: string }) {
     return apiClient.post<TerritoryMember>(`/territories/${territoryId}/members`, data)
   },
-  removeMember(territoryId: number, memberId: number) {
+  removeMember(territoryId: string, memberId: string) {
     return apiClient.delete(`/territories/${territoryId}/members/${memberId}`)
   },
 
   // ── Accounts ──
-  listAccounts(territoryId: number) {
+  listAccounts(territoryId: string) {
     return apiClient.get<TerritoryAccount[]>(`/territories/${territoryId}/accounts`)
   },
-  addAccount(territoryId: number, data: { account_id: number }) {
+  addAccount(territoryId: string, data: { account_id: string }) {
     return apiClient.post<TerritoryAccount>(`/territories/${territoryId}/accounts`, data)
   },
-  removeAccount(territoryId: number, accountId: number) {
+  removeAccount(territoryId: string, accountId: string) {
     return apiClient.delete(`/territories/${territoryId}/accounts/${accountId}`)
   },
 
   // ── Products ──
-  listProducts(territoryId: number) {
+  listProducts(territoryId: string) {
     return apiClient.get<TerritoryProduct[]>(`/territories/${territoryId}/products`)
   },
-  addProduct(territoryId: number, data: { product_id: number; price?: number | null }) {
+  addProduct(territoryId: string, data: { product_id: string; price?: number | null }) {
     return apiClient.post<TerritoryProduct>(`/territories/${territoryId}/products`, data)
   },
-  updateProduct(territoryId: number, productId: number, data: { price?: number | null; is_active?: boolean }) {
+  updateProduct(territoryId: string, productId: string, data: { price?: number | null; is_active?: boolean }) {
     return apiClient.put<TerritoryProduct>(`/territories/${territoryId}/products/${productId}`, data)
   },
-  removeProduct(territoryId: number, productId: number) {
+  removeProduct(territoryId: string, productId: string) {
     return apiClient.delete(`/territories/${territoryId}/products/${productId}`)
   },
 
   // ── Pipeline ──
-  getPipeline(territoryId: number) {
+  getPipeline(territoryId: string) {
     return apiClient.get<PipelineData>(`/territories/${territoryId}/pipeline`)
   },
 }

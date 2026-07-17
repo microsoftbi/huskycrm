@@ -9,10 +9,10 @@ class TerritoryBase(BaseModel):
     name: str
     code: Optional[str] = None
     territory_type: Optional[str] = "region"
-    parent_id: Optional[int] = None
+    parent_id: Optional[str] = None
     description: Optional[str] = None
     is_active: Optional[bool] = True
-    owner_id: Optional[int] = None
+    owner_id: Optional[str] = None
 
 
 class TerritoryCreate(TerritoryBase):
@@ -23,14 +23,14 @@ class TerritoryUpdate(BaseModel):
     name: Optional[str] = None
     code: Optional[str] = None
     territory_type: Optional[str] = None
-    parent_id: Optional[int] = None
+    parent_id: Optional[str] = None
     description: Optional[str] = None
     is_active: Optional[bool] = None
-    owner_id: Optional[int] = None
+    owner_id: Optional[str] = None
 
 
 class TerritoryOut(TerritoryBase):
-    id: int
+    id: str
     created_at: datetime
     updated_at: datetime
     children: list["TerritoryOut"] = []
@@ -43,20 +43,20 @@ class TerritoryOut(TerritoryBase):
 
 
 class TerritoryTreeNode(BaseModel):
-    id: int
+    id: str
     name: str
     code: Optional[str] = None
     territory_type: str = "region"
-    parent_id: Optional[int] = None
+    parent_id: Optional[str] = None
     children: list["TerritoryTreeNode"] = []
 
 
 # ── Territory Member ─────────────────────────────────────────────────
 
 class TerritoryMemberOut(BaseModel):
-    id: int
-    territory_id: int
-    user_id: int
+    id: str
+    territory_id: str
+    user_id: str
     role: str
     username: Optional[str] = None
     display_name: Optional[str] = None
@@ -67,16 +67,16 @@ class TerritoryMemberOut(BaseModel):
 
 
 class TerritoryMemberCreate(BaseModel):
-    user_id: int
+    user_id: str
     role: str = "member"
 
 
 # ── Territory Account ────────────────────────────────────────────────
 
 class TerritoryAccountOut(BaseModel):
-    id: int
-    territory_id: int
-    account_id: int
+    id: str
+    territory_id: str
+    account_id: str
     account_name: Optional[str] = None
     assigned_at: datetime
 
@@ -85,15 +85,15 @@ class TerritoryAccountOut(BaseModel):
 
 
 class TerritoryAccountCreate(BaseModel):
-    account_id: int
+    account_id: str
 
 
 # ── Territory Product ────────────────────────────────────────────────
 
 class TerritoryProductOut(BaseModel):
-    id: int
-    territory_id: int
-    product_id: int
+    id: str
+    territory_id: str
+    product_id: str
     price: Optional[float] = None
     is_active: bool = True
     product_name: Optional[str] = None
@@ -105,7 +105,7 @@ class TerritoryProductOut(BaseModel):
 
 
 class TerritoryProductCreate(BaseModel):
-    product_id: int
+    product_id: str
     price: Optional[float] = None
 
 

@@ -32,6 +32,7 @@ async def init_db():
     from app.models.workflow import WorkflowRule, WorkflowAction, WorkflowExecutionLog  # noqa: F401
     from app.models.report import Report, Dashboard, DashboardComponent  # noqa: F401
     from app.models.territory import Territory, TerritoryMember, TerritoryAccount, TerritoryProduct  # noqa: F401
+    from app.models.event import Event, Task  # noqa: F401
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

@@ -77,7 +77,7 @@ const isEdit = computed(() => !!route.params.id)
 
 const form = reactive({
   first_name: '', last_name: '', email: '', phone: '', mobile_phone: '',
-  title: '', department: '', account_id: undefined as number | undefined,
+  title: '', department: '', account_id: undefined as string | undefined,
 })
 
 const rules = {
@@ -92,7 +92,7 @@ function goBack() {
 onMounted(async () => {
   // Support account_id from query parameter (when creating from account detail)
   if (route.query.account_id) {
-    form.account_id = Number(route.query.account_id)
+    form.account_id = route.query.account_id as string
   }
 
   try {
@@ -103,7 +103,7 @@ onMounted(async () => {
   if (isEdit.value) {
     loading.value = true
     try {
-      const { data } = await contactsApi.get(Number(route.params.id))
+      const { data } = await contactsApi.get(route.params.id as string)
       Object.assign(form, data)
     } catch {
       ElMessage.error('联系人不存在')
@@ -118,7 +118,7 @@ async function handleSave() {
   saving.value = true
   try {
     if (isEdit.value) {
-      await contactsApi.update(Number(route.params.id), form)
+      await contactsApi.update(route.params.id as string, form)
       ElMessage.success('更新成功')
       router.push(`/contacts/${route.params.id}`)
     } else {

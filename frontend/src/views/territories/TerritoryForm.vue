@@ -58,7 +58,7 @@ import { territoriesApi } from '../../api/territories'
 import { authApi } from '../../api/auth'
 import type { TerritoryTreeNode } from '../../types/territory'
 
-const props = defineProps<{ territoryId?: number | null }>()
+const props = defineProps<{ territoryId?: string | null }>()
 const emit = defineEmits<{ saved: []; cancel: [] }>()
 
 const formRef = ref()
@@ -70,8 +70,8 @@ const form = reactive({
   name: '',
   code: '',
   territory_type: 'region',
-  parent_id: null as number | null,
-  owner_id: null as number | null,
+  parent_id: null as string | null,
+  owner_id: null as string | null,
   description: '',
 })
 

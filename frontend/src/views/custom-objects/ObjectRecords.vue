@@ -100,7 +100,7 @@ const displayFields = computed(() => {
   return (object.value?.fields || []).slice(0, 6)
 })
 
-const objId = computed(() => Number(route.params.id))
+const objId = computed(() => route.params.id as string)
 
 async function fetchObject() {
   try {

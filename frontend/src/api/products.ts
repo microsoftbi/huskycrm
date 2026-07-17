@@ -5,16 +5,16 @@ export const productsApi = {
   list(params: { page?: number; page_size?: number; search?: string } = {}) {
     return apiClient.get<PaginatedResponse<Product>>('/products', { params })
   },
-  get(id: number) {
+  get(id: string) {
     return apiClient.get<Product>(`/products/${id}`)
   },
   create(data: ProductCreate) {
     return apiClient.post<Product>('/products', data)
   },
-  update(id: number, data: ProductUpdate) {
+  update(id: string, data: ProductUpdate) {
     return apiClient.put<Product>(`/products/${id}`, data)
   },
-  delete(id: number) {
+  delete(id: string) {
     return apiClient.delete(`/products/${id}`)
   },
 }

@@ -27,6 +27,7 @@ const tabs = [
   { path: '/accounts', label: '账户', icon: 'office-building' },
   { path: '/contacts', label: '联系人', icon: 'user' },
   { path: '/products', label: '产品', icon: 'box' },
+  { path: '/events', label: '拜访', icon: 'phone' },
   { path: '/opportunities', label: '销售机会', icon: 'TrendCharts' },
   { path: '/admin/objects', label: '自定义对象', icon: 'grid' },
   { path: '/admin/territories', label: '销售区域', icon: 'map-location' },

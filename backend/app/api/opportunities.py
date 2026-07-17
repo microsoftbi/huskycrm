@@ -84,7 +84,7 @@ async def list_opportunities(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     search: str = Query("", max_length=255),
-    stage_id: int | None = Query(None),
+    stage_id: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -142,7 +142,7 @@ async def create_opportunity(
 
 @router.get("/{opportunity_id}", response_model=OpportunityOut)
 async def get_opportunity(
-    opportunity_id: int,
+    opportunity_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -159,7 +159,7 @@ async def get_opportunity(
 
 @router.put("/{opportunity_id}", response_model=OpportunityOut)
 async def update_opportunity(
-    opportunity_id: int,
+    opportunity_id: str,
     payload: OpportunityUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -190,7 +190,7 @@ async def update_opportunity(
 
 @router.delete("/{opportunity_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_opportunity(
-    opportunity_id: int,
+    opportunity_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -206,7 +206,7 @@ async def delete_opportunity(
 
 @router.get("/{opportunity_id}/line-items", response_model=list[OpportunityProductOut])
 async def list_line_items(
-    opportunity_id: int,
+    opportunity_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -218,7 +218,7 @@ async def list_line_items(
 
 @router.post("/{opportunity_id}/line-items", response_model=OpportunityProductOut, status_code=status.HTTP_201_CREATED)
 async def add_line_item(
-    opportunity_id: int,
+    opportunity_id: str,
     payload: OpportunityProductCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -250,8 +250,8 @@ async def add_line_item(
 
 @router.delete("/{opportunity_id}/line-items/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_line_item(
-    opportunity_id: int,
-    item_id: int,
+    opportunity_id: str,
+    item_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
