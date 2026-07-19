@@ -20,16 +20,7 @@
 
     <!-- Center: Global Search -->
     <div class="sf-header-center">
-      <div class="sf-global-search">
-        <el-input
-          v-model="searchQuery"
-          placeholder="搜索记录..."
-          size="small"
-          clearable
-          :prefix-icon="SearchIcon"
-          @keyup.enter="handleSearch"
-        />
-      </div>
+      <GlobalSearch />
     </div>
 
     <!-- Right: Actions + User -->
@@ -70,25 +61,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Search as SearchIcon, Setting, SetUp } from '@element-plus/icons-vue'
+import { Setting, SetUp } from '@element-plus/icons-vue'
 import NotificationBell from '../notification/NotificationBell.vue'
+import GlobalSearch from '../search/GlobalSearch.vue'
 import { useAuthStore } from '../../stores/authStore'
 
 const router = useRouter()
 const auth = useAuthStore()
-const searchQuery = ref('')
 
 const userInitial = computed(() => {
   const name = auth.user?.display_name || auth.user?.username || 'U'
   return name[0].toUpperCase()
 })
-
-function handleSearch() {
-  if (!searchQuery.value.trim()) return
-  router.push(`/accounts?search=${encodeURIComponent(searchQuery.value)}`)
-}
 
 function handleQuickCreate(cmd: string) {
   const routes: Record<string, string> = {
@@ -161,21 +147,6 @@ function handleAppLauncher() {
   justify-content: center;
   max-width: 480px;
   margin: 0 auto;
-}
-
-.sf-global-search {
-  width: 100%;
-}
-
-.sf-global-search :deep(.el-input__wrapper) {
-  background: #f4f6f9;
-  border-radius: 4px;
-  border: 1px solid transparent;
-}
-
-.sf-global-search :deep(.el-input__wrapper.is-focus) {
-  background: #fff;
-  border-color: #1589ee;
 }
 
 .sf-header-right {
