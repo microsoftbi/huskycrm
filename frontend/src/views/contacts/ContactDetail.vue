@@ -8,6 +8,8 @@
       <RecordHeader
         :title="`${contact.first_name} ${contact.last_name}`"
         icon-name="user"
+        :hide-edit="!can('edit')"
+        :hide-delete="!canDelete"
         @edit="$router.push(`/contacts/${contact.id}/edit`)"
         @delete="handleDelete"
       />
@@ -20,29 +22,48 @@
           <RecordSection title="联系方式" :fields="contactFields" />
           <RecordSection title="系统信息" :fields="systemFields" />
         </template>
+        <template #panel-activity>
+          <Timeline
+            :entries="timelineEntries"
+            :loading="timelineLoading"
+            :has-more="timelineHasMore"
+            @load-more="loadMoreTimeline"
+          />
+        </template>
       </RecordTabs>
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { contactsApi } from '../../api/contacts'
+import { auditLogsApi } from '../../api/auditLogs'
+import { usePermissions } from '../../composables/usePermissions'
 import type { Contact } from '../../types/crm'
+import type { TimelineEntry } from '../../types/auditLog'
 import RecordHeader from '../../components/record/RecordHeader.vue'
 import RecordSection from '../../components/record/RecordSection.vue'
 import HighlightsPanel from '../../components/record/HighlightsPanel.vue'
 import RecordTabs from '../../components/record/RecordTabs.vue'
+import Timeline from '../../components/activity/Timeline.vue'
 
 const route = useRoute()
 const router = useRouter()
+const { can, canDelete } = usePermissions()
 const contact = ref<Contact | null>(null)
 const loading = ref(false)
 
+const timelineEntries = ref<TimelineEntry[]>([])
+const timelineLoading = ref(false)
+const timelinePage = ref(1)
+const timelineHasMore = ref(true)
+
 const tabs = computed(() => [
   { key: 'details', label: '详细信息' },
+  { key: 'activity', label: '活动' },
 ])
 
 const highlightItems = computed(() => [
@@ -92,6 +113,36 @@ async function handleDelete() {
     router.push('/contacts')
   } catch { /* cancelled */ }
 }
+
+async function loadTimeline() {
+  if (!contact.value?.id) return
+  timelineLoading.value = true
+  try {
+    const { data } = await auditLogsApi.getTimeline('contact', contact.value.id, timelinePage.value)
+    if (timelinePage.value === 1) {
+      timelineEntries.value = data
+    } else {
+      timelineEntries.value.push(...data)
+    }
+    timelineHasMore.value = data.length >= 20
+  } catch {
+    // silent
+  } finally {
+    timelineLoading.value = false
+  }
+}
+
+function loadMoreTimeline() {
+  timelinePage.value++
+  loadTimeline()
+}
+
+watch(() => contact.value?.id, (id) => {
+  if (id) {
+    timelinePage.value = 1
+    loadTimeline()
+  }
+})
 
 onMounted(fetchContact)
 </script>

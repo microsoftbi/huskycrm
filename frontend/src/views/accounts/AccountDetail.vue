@@ -9,6 +9,8 @@
       <RecordHeader
         :title="account.name"
         icon-name="office-building"
+        :hide-edit="!can('edit')"
+        :hide-delete="!canDelete"
         @edit="$router.push(`/accounts/${account.id}/edit`)"
         @delete="handleDelete"
       />
@@ -38,35 +40,56 @@
             create-label="新建联系人"
           />
         </template>
+
+        <!-- Activity Timeline Tab -->
+        <template #panel-activity>
+          <Timeline
+            :entries="timelineEntries"
+            :loading="timelineLoading"
+            :has-more="timelineHasMore"
+            @load-more="loadMoreTimeline"
+          />
+        </template>
       </RecordTabs>
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { accountsApi } from '../../api/accounts'
 import { contactsApi } from '../../api/contacts'
+import { auditLogsApi } from '../../api/auditLogs'
+import { usePermissions } from '../../composables/usePermissions'
 import type { Account, Contact } from '../../types/crm'
+import type { TimelineEntry } from '../../types/auditLog'
 import RecordHeader from '../../components/record/RecordHeader.vue'
 import RecordSection from '../../components/record/RecordSection.vue'
 import HighlightsPanel from '../../components/record/HighlightsPanel.vue'
 import RecordTabs from '../../components/record/RecordTabs.vue'
 import RelatedList from '../../components/record/RelatedList.vue'
+import Timeline from '../../components/activity/Timeline.vue'
 
 const route = useRoute()
 const router = useRouter()
+const { can, canDelete } = usePermissions()
 const account = ref<Account | null>(null)
 const loading = ref(false)
 const contacts = ref<Contact[]>([])
 const contactsTotal = ref(0)
 const contactsLoading = ref(false)
 
+const timelineEntries = ref<TimelineEntry[]>([])
+const timelineLoading = ref(false)
+const timelinePage = ref(1)
+const timelineHasMore = ref(true)
+
 const tabs = computed(() => [
   { key: 'details', label: '详细信息' },
   { key: 'contacts', label: '联系人', count: contactsTotal.value },
+  { key: 'activity', label: '活动' },
 ])
 
 const highlightItems = computed(() => [
@@ -142,6 +165,36 @@ async function handleDelete() {
     router.push('/accounts')
   } catch { /* cancelled */ }
 }
+
+async function loadTimeline() {
+  if (!account.value?.id) return
+  timelineLoading.value = true
+  try {
+    const { data } = await auditLogsApi.getTimeline('account', account.value.id, timelinePage.value)
+    if (timelinePage.value === 1) {
+      timelineEntries.value = data
+    } else {
+      timelineEntries.value.push(...data)
+    }
+    timelineHasMore.value = data.length >= 20
+  } catch {
+    // silent
+  } finally {
+    timelineLoading.value = false
+  }
+}
+
+function loadMoreTimeline() {
+  timelinePage.value++
+  loadTimeline()
+}
+
+watch(() => account.value?.id, (id) => {
+  if (id) {
+    timelinePage.value = 1
+    loadTimeline()
+  }
+})
 
 onMounted(fetchAccount)
 </script>

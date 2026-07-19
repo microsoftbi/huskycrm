@@ -8,6 +8,8 @@
       <RecordHeader
         :title="opportunity.name"
         icon-name="trend-chart"
+        :hide-edit="!can('edit')"
+        :hide-delete="!canDelete"
         @edit="$router.push(`/opportunities/${opportunity.id}/edit`)"
         @delete="handleDelete"
       />
@@ -68,25 +70,38 @@
             </el-table>
           </div>
         </template>
+        <template #panel-activity>
+          <Timeline
+            :entries="timelineEntries"
+            :loading="timelineLoading"
+            :has-more="timelineHasMore"
+            @load-more="loadMoreTimeline"
+          />
+        </template>
       </RecordTabs>
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { opportunitiesApi } from '../../api/opportunities'
 import { productsApi } from '../../api/products'
+import { auditLogsApi } from '../../api/auditLogs'
+import { usePermissions } from '../../composables/usePermissions'
 import type { Opportunity, Stage, LineItem, Product } from '../../types/crm'
+import type { TimelineEntry } from '../../types/auditLog'
 import RecordHeader from '../../components/record/RecordHeader.vue'
 import RecordSection from '../../components/record/RecordSection.vue'
 import HighlightsPanel from '../../components/record/HighlightsPanel.vue'
 import RecordTabs from '../../components/record/RecordTabs.vue'
+import Timeline from '../../components/activity/Timeline.vue'
 
 const route = useRoute()
 const router = useRouter()
+const { can, canDelete } = usePermissions()
 const opportunity = ref<Opportunity | null>(null)
 const stages = ref<Stage[]>([])
 const loading = ref(false)
@@ -94,9 +109,15 @@ const stageMap = ref<Record<number, Stage>>({})
 const lineItems = ref<LineItem[]>([])
 const productMap = ref<Record<number, Product>>({})
 
+const timelineEntries = ref<TimelineEntry[]>([])
+const timelineLoading = ref(false)
+const timelinePage = ref(1)
+const timelineHasMore = ref(true)
+
 const tabs = computed(() => [
   { key: 'details', label: '详细信息' },
   { key: 'products', label: `产品明细${lineItems.value.length ? ` (${lineItems.value.length})` : ''}` },
+  { key: 'activity', label: '活动' },
 ])
 
 const highlightItems = computed(() => {
@@ -186,6 +207,36 @@ async function fetchLineItems() {
     prodData.items.forEach(p => { productMap.value[p.id] = p })
   } catch { /* ignore */ }
 }
+
+async function loadTimeline() {
+  if (!opportunity.value?.id) return
+  timelineLoading.value = true
+  try {
+    const { data } = await auditLogsApi.getTimeline('opportunity', opportunity.value.id, timelinePage.value)
+    if (timelinePage.value === 1) {
+      timelineEntries.value = data
+    } else {
+      timelineEntries.value.push(...data)
+    }
+    timelineHasMore.value = data.length >= 20
+  } catch {
+    // silent
+  } finally {
+    timelineLoading.value = false
+  }
+}
+
+function loadMoreTimeline() {
+  timelinePage.value++
+  loadTimeline()
+}
+
+watch(() => opportunity.value?.id, (id) => {
+  if (id) {
+    timelinePage.value = 1
+    loadTimeline()
+  }
+})
 
 onMounted(async () => {
   await fetchStages()
