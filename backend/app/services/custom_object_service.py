@@ -78,7 +78,7 @@ async def create_object(
     return obj_def
 
 
-async def delete_object(db: AsyncSession, obj_id: int):
+async def delete_object(db: AsyncSession, obj_id: str):
     """Delete a custom object definition and its dynamic table."""
     result = await db.execute(
         select(CustomObjectDef).where(CustomObjectDef.id == obj_id)
@@ -95,7 +95,7 @@ async def delete_object(db: AsyncSession, obj_id: int):
     await db.commit()
 
 
-async def add_field(db: AsyncSession, obj_id: int, field_data: dict) -> CustomFieldDef:
+async def add_field(db: AsyncSession, obj_id: str, field_data: dict) -> CustomFieldDef:
     """Add a field to an existing custom object."""
     result = await db.execute(
         select(CustomObjectDef).where(CustomObjectDef.id == obj_id)
@@ -140,7 +140,7 @@ async def add_field(db: AsyncSession, obj_id: int, field_data: dict) -> CustomFi
     return field
 
 
-async def delete_field(db: AsyncSession, obj_id: int, field_id: int):
+async def delete_field(db: AsyncSession, obj_id: str, field_id: str):
     """Delete a field from a custom object."""
     result = await db.execute(
         select(CustomFieldDef).where(
@@ -169,7 +169,7 @@ async def delete_field(db: AsyncSession, obj_id: int, field_id: int):
 
 # ── Record CRUD ─────────────────────────────────────────────────────
 
-async def get_field_defs(db: AsyncSession, obj_id: int) -> list[CustomFieldDef]:
+async def get_field_defs(db: AsyncSession, obj_id: str) -> list[CustomFieldDef]:
     """Get all field definitions for an object."""
     result = await db.execute(
         select(CustomFieldDef)
@@ -190,7 +190,7 @@ async def get_object_by_name(db: AsyncSession, api_name: str) -> CustomObjectDef
     return obj
 
 
-async def get_object_by_id(db: AsyncSession, obj_id: int) -> CustomObjectDef:
+async def get_object_by_id(db: AsyncSession, obj_id: str) -> CustomObjectDef:
     """Get a custom object definition by its ID."""
     result = await db.execute(
         select(CustomObjectDef).where(CustomObjectDef.id == obj_id)
@@ -278,7 +278,7 @@ async def get_record(db: AsyncSession, obj_def: CustomObjectDef, record_id: int)
 
 
 async def create_record(
-    db: AsyncSession, obj_def: CustomObjectDef, field_values: dict, owner_id: int | None = None,
+    db: AsyncSession, obj_def: CustomObjectDef, field_values: dict, owner_id: str | None = None,
 ) -> dict:
     """Create a record in a dynamic table."""
     field_defs = await get_field_defs(db, obj_def.id)

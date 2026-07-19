@@ -5,12 +5,13 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from app.database import get_db
-from app.models.workflow import WorkflowRule, WorkflowAction, WorkflowExecutionLog
+from app.models.workflow import WorkflowRule, WorkflowAction
 from app.models.auth import User
 from app.schemas.workflow import (
     WorkflowRuleCreate, WorkflowRuleUpdate, WorkflowRuleOut, WorkflowLogOut,
 )
 from app.core.deps import get_current_user
+from app.core.permissions import require_permission
 from app.services import workflow_service as wfsvc
 
 router = APIRouter(prefix="/api/workflows", tags=["workflows"])
@@ -20,6 +21,7 @@ router = APIRouter(prefix="/api/workflows", tags=["workflows"])
 async def list_workflows(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     result = await db.execute(
         select(WorkflowRule)
@@ -34,6 +36,7 @@ async def create_workflow(
     payload: WorkflowRuleCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("create")),
 ):
     rule = WorkflowRule(
         name=payload.name,
@@ -67,9 +70,10 @@ async def create_workflow(
 
 @router.get("/{workflow_id}", response_model=WorkflowRuleOut)
 async def get_workflow(
-    workflow_id: int,
+    workflow_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     result = await db.execute(
         select(WorkflowRule)
@@ -84,10 +88,11 @@ async def get_workflow(
 
 @router.put("/{workflow_id}", response_model=WorkflowRuleOut)
 async def update_workflow(
-    workflow_id: int,
+    workflow_id: str,
     payload: WorkflowRuleUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("edit")),
 ):
     result = await db.execute(select(WorkflowRule).where(WorkflowRule.id == workflow_id))
     rule = result.scalar_one_or_none()
@@ -115,11 +120,14 @@ async def update_workflow(
 
 @router.delete("/{workflow_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_workflow(
-    workflow_id: int,
+    workflow_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("delete")),
 ):
-    result = await db.execute(select(WorkflowRule).where(WorkflowRule.id == workflow_id))
+    result = await db.execute(
+        select(WorkflowRule).where(WorkflowRule.id == workflow_id)
+    )
     rule = result.scalar_one_or_none()
     if not rule:
         raise HTTPException(status_code=404, detail="Workflow not found")
@@ -127,28 +135,13 @@ async def delete_workflow(
     await db.commit()
 
 
-@router.get("/{workflow_id}/logs", response_model=list[WorkflowLogOut])
-async def get_workflow_logs(
-    workflow_id: int,
-    limit: int = Query(50, ge=1, le=200),
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    result = await db.execute(
-        select(WorkflowExecutionLog)
-        .where(WorkflowExecutionLog.workflow_id == workflow_id)
-        .order_by(WorkflowExecutionLog.executed_at.desc())
-        .limit(limit)
-    )
-    return result.scalars().all()
-
-
 @router.post("/{workflow_id}/test", response_model=dict)
 async def test_workflow(
-    workflow_id: int,
+    workflow_id: str,
     payload: dict,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     """Test a workflow rule against sample record data."""
     result = await db.execute(

@@ -48,12 +48,12 @@
 
       <div class="sf-nav-section-title">管理</div>
 
-      <router-link to="/admin/objects" class="sf-nav-item" :class="{ active: route.path.startsWith('/admin/objects') }">
+      <router-link v-if="isAdmin" to="/admin/objects" class="sf-nav-item" :class="{ active: route.path.startsWith('/admin/objects') }">
         <span class="sf-nav-icon"><el-icon :size="16"><grid /></el-icon></span>
         <span>自定义对象</span>
       </router-link>
 
-      <router-link to="/admin/workflows" class="sf-nav-item" :class="{ active: route.path.startsWith('/admin/workflows') }">
+      <router-link v-if="isAdmin" to="/admin/workflows" class="sf-nav-item" :class="{ active: route.path.startsWith('/admin/workflows') }">
         <span class="sf-nav-icon"><el-icon :size="16"><set-up /></el-icon></span>
         <span>工作流</span>
       </router-link>
@@ -86,9 +86,11 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/authStore'
+import { usePermissions } from '../../composables/usePermissions'
 
 const route = useRoute()
 const auth = useAuthStore()
+const { isAdmin } = usePermissions()
 
 const userInitial = computed(() => {
   const name = auth.user?.display_name || auth.user?.username || 'U'

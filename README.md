@@ -94,6 +94,7 @@ python DEMO.py <<< $'1\n2\n3\n4\n0'
 ```
 spsf/
 ├── README.md                       # 本文件
+├── USERGUIDE.md                    # 最终用户操作手册
 ├── DEMO.py                         # 演示数据初始化脚本（交互式菜单）
 ├── TEST.sql                        # 测试数据 SQL 文件
 ├── TEST.md                         # 测试指南

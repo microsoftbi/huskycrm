@@ -7,6 +7,7 @@ from app.models.crm import Contact
 from app.models.auth import User
 from app.schemas.crm import ContactCreate, ContactUpdate, ContactOut
 from app.core.deps import get_current_user
+from app.core.permissions import require_permission
 
 router = APIRouter(prefix="/api/contacts", tags=["contacts"])
 
@@ -19,6 +20,7 @@ async def list_contacts(
     account_id: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     query = select(Contact)
     count_query = select(func.count(Contact.id))
@@ -58,6 +60,7 @@ async def create_contact(
     payload: ContactCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("create")),
 ):
     contact = Contact(**payload.model_dump(exclude_unset=True))
     db.add(contact)
@@ -71,6 +74,7 @@ async def get_contact(
     contact_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     result = await db.execute(select(Contact).where(Contact.id == contact_id))
     contact = result.scalar_one_or_none()
@@ -85,6 +89,7 @@ async def update_contact(
     payload: ContactUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("edit")),
 ):
     result = await db.execute(select(Contact).where(Contact.id == contact_id))
     contact = result.scalar_one_or_none()
@@ -104,6 +109,7 @@ async def delete_contact(
     contact_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("delete")),
 ):
     result = await db.execute(select(Contact).where(Contact.id == contact_id))
     contact = result.scalar_one_or_none()

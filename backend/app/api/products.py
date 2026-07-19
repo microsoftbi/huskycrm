@@ -7,6 +7,7 @@ from app.models.crm import Product
 from app.models.auth import User
 from app.schemas.crm import ProductCreate, ProductUpdate, ProductOut
 from app.core.deps import get_current_user
+from app.core.permissions import require_permission
 
 router = APIRouter(prefix="/api/products", tags=["products"])
 
@@ -18,6 +19,7 @@ async def list_products(
     search: str = Query("", max_length=255),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     query = select(Product)
     count_query = select(func.count(Product.id))
@@ -49,6 +51,7 @@ async def create_product(
     payload: ProductCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("create")),
 ):
     product = Product(**payload.model_dump(exclude_unset=True))
     db.add(product)
@@ -62,6 +65,7 @@ async def get_product(
     product_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     result = await db.execute(select(Product).where(Product.id == product_id))
     product = result.scalar_one_or_none()
@@ -76,6 +80,7 @@ async def update_product(
     payload: ProductUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("edit")),
 ):
     result = await db.execute(select(Product).where(Product.id == product_id))
     product = result.scalar_one_or_none()
@@ -95,6 +100,7 @@ async def delete_product(
     product_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("delete")),
 ):
     result = await db.execute(select(Product).where(Product.id == product_id))
     product = result.scalar_one_or_none()

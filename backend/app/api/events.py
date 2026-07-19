@@ -12,6 +12,7 @@ from app.schemas.event import (
     TaskCreate, TaskUpdate, TaskOut,
 )
 from app.core.deps import get_current_user
+from app.core.permissions import require_permission
 from datetime import datetime
 
 router = APIRouter(prefix="/api/events", tags=["events"])
@@ -31,6 +32,7 @@ async def list_events(
     who_id: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     query = select(Event).options(selectinload(Event.tasks))
     count_query = select(func.count(Event.id))
@@ -78,6 +80,7 @@ async def create_event(
     payload: EventCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("create")),
 ):
     event = Event(**payload.model_dump(exclude_unset=True))
     db.add(event)
@@ -91,6 +94,7 @@ async def get_event(
     event_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     result = await db.execute(
         select(Event)
@@ -109,6 +113,7 @@ async def update_event(
     payload: EventUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("edit")),
 ):
     result = await db.execute(select(Event).where(Event.id == event_id))
     event = result.scalar_one_or_none()
@@ -128,6 +133,7 @@ async def delete_event(
     event_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("delete")),
 ):
     result = await db.execute(select(Event).where(Event.id == event_id))
     event = result.scalar_one_or_none()
@@ -145,6 +151,7 @@ async def check_in(
     location: str = Query("", max_length=255),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("edit")),
 ):
     result = await db.execute(select(Event).where(Event.id == event_id))
     event = result.scalar_one_or_none()
@@ -170,6 +177,7 @@ async def check_out(
     next_steps: str = Query("", max_length=2000),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("edit")),
 ):
     result = await db.execute(select(Event).where(Event.id == event_id))
     event = result.scalar_one_or_none()
@@ -202,6 +210,7 @@ async def list_tasks(
     event_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     result = await db.execute(
         select(Task).where(Task.event_id == event_id).order_by(Task.sort_order)
@@ -215,6 +224,7 @@ async def create_task(
     payload: TaskCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("create")),
 ):
     # Verify event exists
     result = await db.execute(select(Event).where(Event.id == event_id))
@@ -235,6 +245,7 @@ async def update_task(
     payload: TaskUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("edit")),
 ):
     result = await db.execute(
         select(Task).where(Task.id == task_id, Task.event_id == event_id)
@@ -256,6 +267,7 @@ async def delete_task(
     task_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("delete")),
 ):
     result = await db.execute(
         select(Task).where(Task.id == task_id, Task.event_id == event_id)
@@ -274,6 +286,7 @@ async def get_account_events(
     account_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     result = await db.execute(
         select(Event)
@@ -288,6 +301,7 @@ async def get_contact_events(
     contact_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     result = await db.execute(
         select(Event)
@@ -302,6 +316,7 @@ async def get_opportunity_events(
     opportunity_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     result = await db.execute(
         select(Event)

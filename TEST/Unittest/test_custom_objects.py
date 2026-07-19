@@ -17,7 +17,7 @@ class TestCreateCustomObject:
         assert resp.status_code == 201
         data = resp.json()
         assert data["api_name"] == "custom_invoice"
-        assert data["table_name"] == "obj_1"
+        assert data["table_name"].startswith("obj_")
         assert len(data["fields"]) == 3
         status_field = [f for f in data["fields"] if f["api_name"] == "status"][0]
         assert status_field["picklist_values"] == ["待付款", "已付款"]

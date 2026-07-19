@@ -17,4 +17,7 @@ export const authApi = {
   listUsers() {
     return apiClient.get<User[]>('/auth/users')
   },
+  updateUser(userId: string, data: { display_name?: string; email?: string; is_active?: boolean }) {
+    return apiClient.put<User>(`/auth/users/${userId}`, data)
+  },
 }

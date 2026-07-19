@@ -12,6 +12,7 @@ from app.schemas.report import (
     DashboardCreate, DashboardOut, DashboardComponentBase, DashboardComponentOut,
 )
 from app.core.deps import get_current_user
+from app.core.permissions import require_permission
 from app.services import report_service as rsvc
 
 router = APIRouter(prefix="/api/reports", tags=["reports"])
@@ -24,6 +25,7 @@ dashboard_router = APIRouter(prefix="/api/dashboards", tags=["dashboards"])
 async def list_reports(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     result = await db.execute(
         select(Report).order_by(Report.created_at.desc())
@@ -36,6 +38,7 @@ async def create_report(
     payload: ReportCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("create")),
 ):
     report = Report(
         name=payload.name,
@@ -55,9 +58,10 @@ async def create_report(
 
 @router.get("/{report_id}", response_model=ReportOut)
 async def get_report(
-    report_id: int,
+    report_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     result = await db.execute(select(Report).where(Report.id == report_id))
     report = result.scalar_one_or_none()
@@ -68,10 +72,11 @@ async def get_report(
 
 @router.put("/{report_id}", response_model=ReportOut)
 async def update_report(
-    report_id: int,
+    report_id: str,
     payload: ReportUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("edit")),
 ):
     result = await db.execute(select(Report).where(Report.id == report_id))
     report = result.scalar_one_or_none()
@@ -93,9 +98,10 @@ async def update_report(
 
 @router.delete("/{report_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_report(
-    report_id: int,
+    report_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("delete")),
 ):
     result = await db.execute(select(Report).where(Report.id == report_id))
     report = result.scalar_one_or_none()
@@ -107,11 +113,12 @@ async def delete_report(
 
 @router.post("/{report_id}/run", response_model=ReportResult)
 async def run_report(
-    report_id: int,
+    report_id: str,
     page: int = Query(1, ge=1),
     page_size: int = Query(100, ge=1, le=500),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     result = await db.execute(select(Report).where(Report.id == report_id))
     report = result.scalar_one_or_none()
@@ -136,6 +143,7 @@ async def run_report(
 async def list_dashboards(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     result = await db.execute(
         select(Dashboard)
@@ -150,6 +158,7 @@ async def create_dashboard(
     payload: DashboardCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("create")),
 ):
     dash = Dashboard(name=payload.name, owner_id=current_user.id)
     db.add(dash)
@@ -166,9 +175,10 @@ async def create_dashboard(
 
 @dashboard_router.get("/{dashboard_id}", response_model=DashboardOut)
 async def get_dashboard(
-    dashboard_id: int,
+    dashboard_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     result = await db.execute(
         select(Dashboard)
@@ -183,9 +193,10 @@ async def get_dashboard(
 
 @dashboard_router.delete("/{dashboard_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_dashboard(
-    dashboard_id: int,
+    dashboard_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("delete")),
 ):
     result = await db.execute(select(Dashboard).where(Dashboard.id == dashboard_id))
     dash = result.scalar_one_or_none()
@@ -197,10 +208,11 @@ async def delete_dashboard(
 
 @dashboard_router.post("/{dashboard_id}/components", response_model=DashboardComponentOut)
 async def add_component(
-    dashboard_id: int,
+    dashboard_id: str,
     payload: DashboardComponentBase,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("create")),
 ):
     result = await db.execute(select(Dashboard).where(Dashboard.id == dashboard_id))
     dash = result.scalar_one_or_none()
@@ -216,10 +228,11 @@ async def add_component(
 
 @dashboard_router.delete("/{dashboard_id}/components/{component_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_component(
-    dashboard_id: int,
-    component_id: int,
+    dashboard_id: str,
+    component_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("delete")),
 ):
     result = await db.execute(
         select(DashboardComponent).where(

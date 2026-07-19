@@ -15,7 +15,7 @@ class FieldDefBase(BaseModel):
     picklist_values: Optional[list[str]] = None
     precision_total: Optional[int] = None
     precision_scale: Optional[int] = None
-    lookup_object_id: Optional[int] = None
+    lookup_object_id: Optional[str] = None
     display_order: int = 0
 
 
@@ -24,8 +24,8 @@ class FieldDefCreate(FieldDefBase):
 
 
 class FieldDefOut(FieldDefBase):
-    id: int
-    object_id: int
+    id: str
+    object_id: str
     created_at: datetime
     updated_at: datetime
 
@@ -38,9 +38,6 @@ class FieldDefOut(FieldDefBase):
             except (json.JSONDecodeError, TypeError):
                 return None
         return v
-
-    class Config:
-        from_attributes = True
 
     class Config:
         from_attributes = True
@@ -64,7 +61,7 @@ class ObjectDefUpdate(BaseModel):
 
 
 class ObjectDefOut(ObjectDefBase):
-    id: int
+    id: str
     table_name: str
     is_active: bool
     fields: list[FieldDefOut] = []
@@ -83,7 +80,7 @@ class RecordData(BaseModel):
 class RecordOut(BaseModel):
     id: int
     record_id: str
-    owner_id: Optional[int] = None
+    owner_id: Optional[str] = None
     fields: dict
     created_at: Optional[str] = None
     updated_at: Optional[str] = None

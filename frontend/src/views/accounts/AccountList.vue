@@ -3,9 +3,11 @@
     <div class="sf-page-header">
       <h2 class="sf-page-title">账户</h2>
       <div class="sf-page-actions">
-        <router-link to="/accounts/new">
+        <router-link v-if="can('create')" to="/accounts/new">
           <el-button type="primary" size="small" icon="plus">新建账户</el-button>
         </router-link>
+        <el-button size="small" @click="handleImport">📥 导入</el-button>
+        <el-button size="small" @click="handleExport">📤 导出</el-button>
       </div>
     </div>
 
@@ -45,7 +47,7 @@
         <el-table-column label="操作" width="150" fixed="right">
           <template #default="{ row }">
             <el-button size="small" @click="$router.push(`/accounts/${row.id}`)">查看</el-button>
-            <el-button size="small" type="danger" plain @click="handleDelete(row)">删除</el-button>
+            <el-button v-if="canDelete" size="small" type="danger" plain @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -62,6 +64,7 @@
         />
       </div>
     </div>
+    <ImportWizard ref="importWizard" object-type="account" @done="fetchAccounts" />
   </div>
 </template>
 
@@ -69,7 +72,13 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { accountsApi } from '../../api/accounts'
+import { importExportApi } from '../../api/importExport'
+import { usePermissions } from '../../composables/usePermissions'
 import type { Account } from '../../types/crm'
+import ImportWizard from '../../components/import/ImportWizard.vue'
+
+const { can, canDelete } = usePermissions()
+const importWizard = ref<InstanceType<typeof ImportWizard> | null>(null)
 
 const accounts = ref<Account[]>([])
 const total = ref(0)
@@ -102,6 +111,26 @@ async function handleDelete(row: Account) {
     ElMessage.success('删除成功')
     fetchAccounts()
   } catch { /* cancelled */ }
+}
+
+function handleImport() {
+  importWizard.value?.open()
+}
+
+async function handleExport() {
+  try {
+    const { data } = await importExportApi.exportCsv('account', searchQuery.value)
+    const url = window.URL.createObjectURL(new Blob([data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'accounts.csv')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch {
+    ElMessage.error('导出失败')
+  }
 }
 
 onMounted(fetchAccounts)

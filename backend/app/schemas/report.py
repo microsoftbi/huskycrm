@@ -27,8 +27,8 @@ class ReportUpdate(BaseModel):
 
 
 class ReportOut(ReportBase):
-    id: int
-    owner_id: Optional[int] = None
+    id: str
+    owner_id: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
@@ -53,7 +53,7 @@ class ReportResult(BaseModel):
 
 
 class DashboardComponentBase(BaseModel):
-    report_id: int
+    report_id: Optional[str] = None
     title: str
     chart_type: str = "table"
     position_x: int = 0
@@ -63,8 +63,8 @@ class DashboardComponentBase(BaseModel):
 
 
 class DashboardComponentOut(DashboardComponentBase):
-    id: int
-    dashboard_id: int
+    id: str
+    dashboard_id: str
 
     class Config:
         from_attributes = True
@@ -79,8 +79,8 @@ class DashboardCreate(DashboardBase):
 
 
 class DashboardOut(DashboardBase):
-    id: int
-    owner_id: Optional[int] = None
+    id: str
+    owner_id: Optional[str] = None
     components: list[DashboardComponentOut] = []
     created_at: datetime
     updated_at: datetime

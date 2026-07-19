@@ -3,11 +3,14 @@
     <div class="sf-page-header">
       <h2 class="sf-page-title">联系人</h2>
       <div class="sf-page-actions">
-        <router-link to="/contacts/new">
+        <router-link v-if="can('create')" to="/contacts/new">
           <el-button type="primary" size="small" icon="plus">新建联系人</el-button>
         </router-link>
+        <el-button size="small" @click="handleImport">📥 导入</el-button>
+        <el-button size="small" @click="handleExport">📤 导出</el-button>
       </div>
     </div>
+    <ImportWizard ref="importWizard" object-type="contact" @done="fetchContacts" />
 
     <div class="sf-card">
       <div class="sf-filter-bar">
@@ -58,7 +61,7 @@
         <el-table-column label="操作" width="150" fixed="right">
           <template #default="{ row }">
             <el-button size="small" @click="$router.push(`/contacts/${row.id}`)">查看</el-button>
-            <el-button size="small" type="danger" plain @click="handleDelete(row)">删除</el-button>
+            <el-button v-if="canDelete" size="small" type="danger" plain @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -79,7 +82,13 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { contactsApi } from '../../api/contacts'
+import { importExportApi } from '../../api/importExport'
 import type { Contact } from '../../types/crm'
+import { usePermissions } from '../../composables/usePermissions'
+import ImportWizard from '../../components/import/ImportWizard.vue'
+
+const { can, canDelete } = usePermissions()
+const importWizard = ref<InstanceType<typeof ImportWizard> | null>(null)
 
 const contacts = ref<Contact[]>([])
 const total = ref(0)
@@ -110,6 +119,26 @@ async function handleDelete(row: Contact) {
 
 function onExpandChange(row: any, expandedRows: any[]) {
   // Optional: track expanded state if needed
+}
+
+function handleImport() {
+  importWizard.value?.open()
+}
+
+async function handleExport() {
+  try {
+    const { data } = await importExportApi.exportCsv('contact', searchQuery.value)
+    const url = window.URL.createObjectURL(new Blob([data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'contacts.csv')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch {
+    ElMessage.error('导出失败')
+  }
 }
 
 onMounted(fetchContacts)

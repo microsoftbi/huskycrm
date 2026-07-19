@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
+from sqlalchemy.orm import selectinload
 
 from app.database import get_db
 from app.models.auth import User
+from app.models.profile import Profile
 from app.models.territory import Territory, TerritoryMember
 from app.schemas.auth import (
     UserRegister, UserLogin, TokenResponse, RefreshRequest, UserOut,
@@ -13,6 +15,21 @@ from app.core.security import (
     hash_password, verify_password, create_access_token, create_refresh_token, decode_token
 )
 from app.core.deps import get_current_user
+
+router = APIRouter(prefix="/api/auth", tags=["auth"])
+
+
+async def _user_to_out(user: User, db: AsyncSession) -> UserOut:
+    """Build UserOut with profile info."""
+    data = {c.name: getattr(user, c.name) for c in user.__table__.columns}
+    profile_name = None
+    profile_type = None
+    if user.profile_id:
+        profile = await db.get(Profile, user.profile_id)
+        if profile:
+            profile_name = profile.name
+            profile_type = profile.profile_type
+    return UserOut(**data, profile_name=profile_name, profile_type=profile_type)
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -40,7 +57,7 @@ async def register(payload: UserRegister, db: AsyncSession = Depends(get_db)):
     db.add(user)
     await db.commit()
     await db.refresh(user)
-    return user
+    return await _user_to_out(user, db)
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -80,8 +97,11 @@ async def refresh(payload: RefreshRequest):
 
 
 @router.get("/me", response_model=UserOut)
-async def get_me(current_user: User = Depends(get_current_user)):
-    return current_user
+async def get_me(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    return await _user_to_out(current_user, db)
 
 
 @router.get("/users", response_model=list[UserOut])
@@ -90,7 +110,36 @@ async def list_users(
     current_user: User = Depends(get_current_user),
 ):
     result = await db.execute(select(User).order_by(User.username))
-    return result.scalars().all()
+    users = result.scalars().all()
+    return [await _user_to_out(u, db) for u in users]
+
+
+@router.put("/users/{user_id}", response_model=UserOut)
+async def update_user(
+    user_id: str,
+    payload: ProfileUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    # Only superusers can update other users
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can update users")
+
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    update_data = payload.model_dump(exclude_unset=True)
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No fields to update")
+
+    for field, value in update_data.items():
+        setattr(user, field, value)
+
+    await db.commit()
+    await db.refresh(user)
+    return await _user_to_out(user, db)
 
 
 @router.put("/profile", response_model=UserOut)
@@ -99,7 +148,8 @@ async def update_profile(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    update_data = payload.model_dump(exclude_unset=True)
+    # Users cannot change their own profile_id
+    update_data = payload.model_dump(exclude_unset=True, exclude={"profile_id"})
     if not update_data:
         raise HTTPException(status_code=400, detail="No fields to update")
 
@@ -108,7 +158,7 @@ async def update_profile(
 
     await db.commit()
     await db.refresh(current_user)
-    return current_user
+    return await _user_to_out(current_user, db)
 
 
 @router.put("/password", status_code=status.HTTP_200_OK)

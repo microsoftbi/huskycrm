@@ -8,6 +8,8 @@
       <RecordHeader
         :title="event.subject"
         icon-name="phone"
+        :hide-edit="!can('edit')"
+        :hide-delete="!canDelete"
         @edit="$router.push(`/events/${event.id}/edit`)"
         @delete="handleDelete"
       />
@@ -171,6 +173,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, CircleCheck, CircleClose } from '@element-plus/icons-vue'
 import { eventsApi } from '../../api/events'
+import { usePermissions } from '../../composables/usePermissions'
 import type { Event, Task, TaskCreate } from '../../types/event'
 import RecordHeader from '../../components/record/RecordHeader.vue'
 import RecordSection from '../../components/record/RecordSection.vue'
@@ -179,6 +182,7 @@ import RecordTabs from '../../components/record/RecordTabs.vue'
 
 const route = useRoute()
 const router = useRouter()
+const { can, canDelete } = usePermissions()
 const event = ref<Event | null>(null)
 const loading = ref(false)
 const tasks = ref<Task[]>([])

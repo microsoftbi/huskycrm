@@ -7,6 +7,7 @@ from app.models.crm import Account
 from app.models.auth import User
 from app.schemas.crm import AccountCreate, AccountUpdate, AccountOut
 from app.core.deps import get_current_user
+from app.core.permissions import require_permission
 
 router = APIRouter(prefix="/api/accounts", tags=["accounts"])
 
@@ -18,6 +19,7 @@ async def list_accounts(
     search: str = Query("", max_length=255),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     query = select(Account)
     count_query = select(func.count(Account.id))
@@ -49,6 +51,7 @@ async def create_account(
     payload: AccountCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("create")),
 ):
     account = Account(**payload.model_dump(exclude_unset=True))
     db.add(account)
@@ -62,6 +65,7 @@ async def get_account(
     account_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     result = await db.execute(select(Account).where(Account.id == account_id))
     account = result.scalar_one_or_none()
@@ -76,6 +80,7 @@ async def update_account(
     payload: AccountUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("edit")),
 ):
     result = await db.execute(select(Account).where(Account.id == account_id))
     account = result.scalar_one_or_none()
@@ -95,6 +100,7 @@ async def delete_account(
     account_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("delete")),
 ):
     result = await db.execute(select(Account).where(Account.id == account_id))
     account = result.scalar_one_or_none()

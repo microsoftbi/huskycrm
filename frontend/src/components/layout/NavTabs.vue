@@ -29,11 +29,6 @@ const tabs = [
   { path: '/products', label: '产品', icon: 'box' },
   { path: '/events', label: '拜访', icon: 'phone' },
   { path: '/opportunities', label: '销售机会', icon: 'TrendCharts' },
-  { path: '/admin/objects', label: '自定义对象', icon: 'grid' },
-  { path: '/admin/territories', label: '销售区域', icon: 'map-location' },
-  { path: '/admin/workflows', label: '工作流', icon: 'set-up' },
-  { path: '/admin/reports', label: '报表', icon: 'data-analysis' },
-  { path: '/admin/dashboards', label: '仪表盘', icon: 'data-board' },
 ]
 
 function isActive(path: string): boolean {

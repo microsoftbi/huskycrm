@@ -12,8 +12,8 @@
         </div>
         <div class="sf-record-name">{{ product.name }}</div>
         <div class="sf-record-actions">
-          <el-button type="primary" size="small" icon="edit" @click="$router.push(`/products/${product.id}/edit`)">编辑</el-button>
-          <el-button size="small" type="danger" plain icon="delete" @click="handleDelete">删除</el-button>
+          <el-button v-if="can('edit')" type="primary" size="small" icon="edit" @click="$router.push(`/products/${product.id}/edit`)">编辑</el-button>
+          <el-button v-if="canDelete" size="small" type="danger" plain icon="delete" @click="handleDelete">删除</el-button>
         </div>
       </div>
 
@@ -29,12 +29,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { productsApi } from '../../api/products'
+import { usePermissions } from '../../composables/usePermissions'
 import type { Product } from '../../types/crm'
-import RecordHeader from '../../components/record/RecordHeader.vue'
 import RecordSection from '../../components/record/RecordSection.vue'
 
 const route = useRoute()
 const router = useRouter()
+const { can, canDelete } = usePermissions()
 const product = ref<Product | null>(null)
 const loading = ref(false)
 

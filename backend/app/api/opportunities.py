@@ -13,6 +13,7 @@ from app.schemas.crm import (
 )
 from app.models.crm import Product as ProductModel
 from app.core.deps import get_current_user
+from app.core.permissions import require_permission
 
 
 async def ensure_stages_seeded():
@@ -42,6 +43,7 @@ router = APIRouter(prefix="/api/opportunities", tags=["opportunities"])
 async def list_stages(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     await ensure_stages_seeded()
     result = await db.execute(select(Stage).order_by(Stage.sort_order))
@@ -54,6 +56,7 @@ async def list_stages(
 async def get_pipeline(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     stages_result = await db.execute(select(Stage).order_by(Stage.sort_order))
     stages = stages_result.scalars().all()
@@ -87,6 +90,7 @@ async def list_opportunities(
     stage_id: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     query = select(Opportunity).options(selectinload(Opportunity.line_items))
     count_query = select(func.count(Opportunity.id))
@@ -122,6 +126,7 @@ async def create_opportunity(
     payload: OpportunityCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("create")),
 ):
     # Validate stage exists
     stage = await db.execute(select(Stage).where(Stage.id == payload.stage_id))
@@ -145,6 +150,7 @@ async def get_opportunity(
     opportunity_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     result = await db.execute(
         select(Opportunity)
@@ -163,6 +169,7 @@ async def update_opportunity(
     payload: OpportunityUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("edit")),
 ):
     result = await db.execute(select(Opportunity).where(Opportunity.id == opportunity_id))
     opp = result.scalar_one_or_none()
@@ -193,6 +200,7 @@ async def delete_opportunity(
     opportunity_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("delete")),
 ):
     result = await db.execute(select(Opportunity).where(Opportunity.id == opportunity_id))
     opp = result.scalar_one_or_none()
@@ -209,6 +217,7 @@ async def list_line_items(
     opportunity_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     result = await db.execute(
         select(OpportunityProduct).where(OpportunityProduct.opportunity_id == opportunity_id)
@@ -222,6 +231,7 @@ async def add_line_item(
     payload: OpportunityProductCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("create")),
 ):
     # Verify opportunity exists
     opp_result = await db.execute(select(Opportunity).where(Opportunity.id == opportunity_id))
@@ -254,6 +264,7 @@ async def remove_line_item(
     item_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("delete")),
 ):
     result = await db.execute(
         select(OpportunityProduct).where(

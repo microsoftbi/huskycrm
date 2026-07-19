@@ -5,6 +5,7 @@
       <h2 class="page-title">{{ object?.label || '数据' }}</h2>
       <div style="flex:1" />
       <el-button type="primary" icon="plus" @click="showCreateDialog = true">新建记录</el-button>
+      <el-button size="small" @click="handleExport">📤 导出</el-button>
     </div>
 
     <el-card shadow="hover">
@@ -79,6 +80,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { customObjectsApi } from '../../api/customObjects'
+import { importExportApi } from '../../api/importExport'
 import type { CustomObjectDef, CustomRecord } from '../../types/crm'
 import FieldRenderer from '../../components/dynamic-form/FieldRenderer.vue'
 
@@ -166,6 +168,23 @@ async function handleDelete(row: CustomRecord) {
     ElMessage.success('删除成功')
     fetchRecords()
   } catch { /* cancelled */ }
+}
+
+async function handleExport() {
+  if (!object.value) return
+  try {
+    const { data } = await importExportApi.exportCsv(object.value.api_name)
+    const url = window.URL.createObjectURL(new Blob([data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `${object.value.api_name}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch {
+    ElMessage.error('导出失败')
+  }
 }
 
 onMounted(async () => {

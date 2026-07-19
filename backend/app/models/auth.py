@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, func
+from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, func
+from sqlalchemy.orm import relationship
 from app.database import Base
 from app.utils.id_gen import generate_id
 
@@ -13,5 +14,8 @@ class User(Base):
     display_name = Column(String(120))
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
+    profile_id = Column(String(36), ForeignKey("profiles.id"), nullable=True, index=True)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+
+    profile = relationship("Profile", backref="users")

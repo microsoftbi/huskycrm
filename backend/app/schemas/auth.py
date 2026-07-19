@@ -31,6 +31,9 @@ class UserOut(BaseModel):
     display_name: str | None = None
     is_active: bool
     is_superuser: bool
+    profile_id: str | None = None
+    profile_name: str | None = None
+    profile_type: str | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
 
@@ -41,6 +44,8 @@ class UserOut(BaseModel):
 class ProfileUpdate(BaseModel):
     display_name: str | None = None
     email: str | None = None
+    is_active: bool | None = None
+    profile_id: str | None = None
 
 
 class PasswordChange(BaseModel):

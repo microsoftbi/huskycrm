@@ -2,7 +2,7 @@
   <div class="event-list">
     <div class="sf-page-header">
       <h2 class="sf-page-title">拜访记录</h2>
-      <el-button type="primary" size="small" @click="$router.push('/events/new')">
+      <el-button v-if="can('create')" type="primary" size="small" @click="$router.push('/events/new')">
         <el-icon><plus /></el-icon> 新建拜访
       </el-button>
     </div>
@@ -89,6 +89,9 @@ import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { eventsApi } from '../../api/events'
 import type { Event } from '../../types/event'
+import { usePermissions } from '../../composables/usePermissions'
+
+const { can } = usePermissions()
 
 const events = ref<Event[]>([])
 const loading = ref(false)

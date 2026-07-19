@@ -5,6 +5,9 @@ export interface User {
   display_name: string | null
   is_active: boolean
   is_superuser: boolean
+  profile_id: string | null
+  profile_name: string | null
+  profile_type: string | null
   created_at?: string | null
   updated_at?: string | null
 }

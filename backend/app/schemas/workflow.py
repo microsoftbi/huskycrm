@@ -28,8 +28,8 @@ class WorkflowRuleUpdate(BaseModel):
 
 
 class WorkflowActionOut(WorkflowActionBase):
-    id: int
-    workflow_id: int
+    id: str
+    workflow_id: str
 
     @field_validator("action_config", mode="before")
     @classmethod
@@ -46,7 +46,7 @@ class WorkflowActionOut(WorkflowActionBase):
 
 
 class WorkflowRuleOut(WorkflowRuleBase):
-    id: int
+    id: str
     is_active: bool
     actions: list[WorkflowActionOut] = []
     created_at: datetime
@@ -67,11 +67,11 @@ class WorkflowRuleOut(WorkflowRuleBase):
 
 
 class WorkflowLogOut(BaseModel):
-    id: int
-    workflow_id: int
+    id: str
+    workflow_id: str
     workflow_name: Optional[str] = None
     object_type: str
-    record_id: int
+    record_id: str
     conditions_met: bool
     action_executed: bool
     result_message: Optional[str] = None
