@@ -198,6 +198,16 @@ const router = createRouter({
           component: () => import('../views/reports/DashboardPage.vue'),
         },
         {
+          path: 'admin/settings',
+          name: 'Settings',
+          component: () => import('../views/admin/SettingsPage.vue'),
+        },
+        {
+          path: 'admin/notifications',
+          name: 'NotificationList',
+          component: () => import('../views/admin/NotificationList.vue'),
+        },
+        {
           path: 'profile',
           name: 'Profile',
           component: () => import('../views/profile/ProfilePage.vue'),
