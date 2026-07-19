@@ -40,6 +40,11 @@ async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
+    # Set up FTS5 search index
+    from app.services.search_service import setup_fts5
+    async with engine.begin() as conn:
+        await setup_fts5(conn)
+
     await seed_default_profiles()
 
     # Attach audit listeners to all models
