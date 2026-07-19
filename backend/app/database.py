@@ -35,6 +35,7 @@ async def init_db():
     from app.models.event import Event, Task  # noqa: F401
     from app.models.profile import Profile  # noqa: F401
     from app.models.audit_log import AuditLog  # noqa: F401
+    from app.models.notification import Notification  # noqa: F401
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -50,6 +51,7 @@ async def init_db():
         CustomObjectDef, CustomFieldDef,
         WorkflowRule, WorkflowAction,
         Report, Dashboard, DashboardComponent,
+        Notification,
     ]:
         attach_listeners(model_cls)
 
