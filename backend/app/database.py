@@ -36,6 +36,7 @@ async def init_db():
     from app.models.profile import Profile  # noqa: F401
     from app.models.audit_log import AuditLog  # noqa: F401
     from app.models.notification import Notification  # noqa: F401
+    from app.models.import_job import ImportJob  # noqa: F401
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
