@@ -15,6 +15,8 @@ from app.schemas.territory import (
 )
 from app.schemas.crm import StageOut, PipelineOut, PipelineStageData
 from app.core.deps import get_current_user
+from app.core.permissions import require_permission
+from app.services.notification_service import create_notification
 
 router = APIRouter(prefix="/api/territories", tags=["territories"])
 
@@ -55,6 +57,7 @@ async def list_territories(
     search: str = Query("", max_length=255),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     query = select(Territory).options(selectinload(Territory.children)).order_by(Territory.name)
     if search:
@@ -86,6 +89,7 @@ async def list_territories(
 async def get_territory_tree(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     result = await db.execute(select(Territory).order_by(Territory.name))
     territories = result.scalars().all()
@@ -97,6 +101,7 @@ async def create_territory(
     payload: TerritoryCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("create")),
 ):
     # Validate parent exists if provided
     if payload.parent_id:
@@ -119,6 +124,7 @@ async def get_territory(
     territory_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     result = await db.execute(
         select(Territory)
@@ -154,6 +160,7 @@ async def update_territory(
     payload: TerritoryUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("edit")),
 ):
     result = await db.execute(
         select(Territory).options(selectinload(Territory.children)).where(Territory.id == territory_id)
@@ -199,6 +206,7 @@ async def delete_territory(
     territory_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("delete")),
 ):
     result = await db.execute(select(Territory).where(Territory.id == territory_id))
     territory = result.scalar_one_or_none()
@@ -215,6 +223,7 @@ async def list_members(
     territory_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     # Verify territory exists
     territory = await db.get(Territory, territory_id)
@@ -244,6 +253,7 @@ async def add_member(
     payload: TerritoryMemberCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("create")),
 ):
     territory = await db.get(Territory, territory_id)
     if not territory:
@@ -267,6 +277,17 @@ async def add_member(
     db.add(member)
     await db.commit()
     await db.refresh(member)
+
+    # Send system notification
+    await create_notification(
+        db,
+        user_id=payload.user_id,
+        title="区域分配",
+        message=f"您已被分配到区域「{territory.name}」",
+        reference_type="territory",
+        reference_id=territory_id,
+    )
+
     return TerritoryMemberOut(
         id=member.id, territory_id=member.territory_id, user_id=member.user_id,
         role=member.role, assigned_at=member.assigned_at,
@@ -280,6 +301,7 @@ async def remove_member(
     member_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("delete")),
 ):
     result = await db.execute(
         select(TerritoryMember).where(
@@ -301,6 +323,7 @@ async def list_territory_accounts(
     territory_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     territory = await db.get(Territory, territory_id)
     if not territory:
@@ -328,6 +351,7 @@ async def add_territory_account(
     payload: TerritoryAccountCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("create")),
 ):
     territory = await db.get(Territory, territory_id)
     if not territory:
@@ -362,6 +386,7 @@ async def remove_territory_account(
     account_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("delete")),
 ):
     result = await db.execute(
         select(TerritoryAccount).where(
@@ -383,6 +408,7 @@ async def list_territory_products(
     territory_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     territory = await db.get(Territory, territory_id)
     if not territory:
@@ -413,6 +439,7 @@ async def add_territory_product(
     payload: TerritoryProductCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("create")),
 ):
     territory = await db.get(Territory, territory_id)
     if not territory:
@@ -454,6 +481,7 @@ async def update_territory_product(
     payload: TerritoryProductUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("edit")),
 ):
     result = await db.execute(
         select(TerritoryProduct).where(
@@ -488,6 +516,7 @@ async def remove_territory_product(
     product_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("delete")),
 ):
     result = await db.execute(
         select(TerritoryProduct).where(
@@ -509,6 +538,7 @@ async def get_territory_pipeline(
     territory_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    _: User = Depends(require_permission("read")),
 ):
     territory = await db.get(Territory, territory_id)
     if not territory:

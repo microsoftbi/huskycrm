@@ -93,6 +93,18 @@ async def execute_actions(
 
         elif action.action_type == "send_notification":
             message = config.get("message", "Notification triggered")
+            target_user_id = config.get("user_id")
+            if target_user_id:
+                from app.services.notification_service import create_notification
+                await create_notification(
+                    db,
+                    user_id=target_user_id,
+                    title=config.get("title", "工作流通知"),
+                    message=message,
+                    notification_type="workflow",
+                    reference_type=object_type,
+                    reference_id=str(record.get("id", "")),
+                )
             results.append(f"Notification: {message}")
 
     return "; ".join(results) if results else "No actions executed"
