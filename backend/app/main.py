@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import init_db
 from app.api import (
     auth, accounts, contacts, opportunities, custom_objects, workflows, reports,
-    products, territories, events,
+    products, territories, events, profiles, audit_logs,
 )
 
 
@@ -31,6 +31,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.middleware("http")
+async def set_audit_user(request, call_next):
+    """Set current user ID in audit contextvar for automatic audit logging."""
+    from app.services.audit_service import current_user_id
+    token = current_user_id.set("system")
+    try:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            from app.core.security import decode_token
+            token_str = auth_header.split(" ")[1]
+            payload = decode_token(token_str)
+            if payload and payload.get("sub"):
+                current_user_id.set(payload["sub"])
+        response = await call_next(request)
+        return response
+    finally:
+        current_user_id.reset(token)
+
 app.include_router(auth.router)
 app.include_router(accounts.router)
 app.include_router(contacts.router)
@@ -42,6 +61,8 @@ app.include_router(reports.dashboard_router)
 app.include_router(products.router)
 app.include_router(territories.router)
 app.include_router(events.router)
+app.include_router(profiles.router)
+app.include_router(audit_logs.router)
 
 
 @app.get("/api/health")
