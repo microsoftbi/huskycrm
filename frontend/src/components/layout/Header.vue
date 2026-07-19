@@ -49,6 +49,8 @@
         <el-icon><setting /></el-icon>
       </el-button>
 
+      <NotificationBell />
+
       <el-dropdown trigger="click" @command="handleCommand">
         <div class="sf-user-info">
           <div class="sf-user-avatar">{{ userInitial }}</div>
@@ -58,6 +60,7 @@
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item command="profile"><el-icon><user /></el-icon>个人信息</el-dropdown-item>
+            <el-dropdown-item command="settings"><el-icon><set-up /></el-icon>设置</el-dropdown-item>
             <el-dropdown-item divided command="logout"><el-icon><switch-button /></el-icon>退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -69,7 +72,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Search as SearchIcon, Setting } from '@element-plus/icons-vue'
+import { Search as SearchIcon, Setting, SetUp } from '@element-plus/icons-vue'
+import NotificationBell from '../notification/NotificationBell.vue'
 import { useAuthStore } from '../../stores/authStore'
 
 const router = useRouter()
@@ -98,6 +102,8 @@ function handleQuickCreate(cmd: string) {
 function handleCommand(command: string) {
   if (command === 'profile') {
     router.push('/profile')
+  } else if (command === 'settings') {
+    router.push('/admin/settings')
   } else if (command === 'logout') {
     auth.logout()
     router.push('/login')
