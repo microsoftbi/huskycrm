@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import init_db
 from app.api import (
     auth, accounts, contacts, opportunities, custom_objects, workflows, reports,
-    products, territories, events, profiles, audit_logs,
+    products, territories, events, profiles, audit_logs, notifications,
 )
 
 
@@ -63,6 +63,7 @@ app.include_router(territories.router)
 app.include_router(events.router)
 app.include_router(profiles.router)
 app.include_router(audit_logs.router)
+app.include_router(notifications.router)
 
 
 @app.get("/api/health")
