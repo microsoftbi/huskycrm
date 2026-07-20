@@ -19,8 +19,8 @@ class Report(Base):
     aggregations = Column(Text)                          # JSON
     columns = Column(Text)                               # JSON: field names to display
     owner_id = Column(String(36), ForeignKey("users.id"))
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime, default=func.now(), server_default=func.now())
+    updated_at = Column(DateTime, default=func.now(), server_default=func.now(), onupdate=func.now())
 
     owner = relationship("User")
 
@@ -33,8 +33,8 @@ class Dashboard(Base):
     name = Column(String(255), nullable=False)
     owner_id = Column(String(36), ForeignKey("users.id"))
     layout = Column(Text)                                # JSON: grid layout
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime, default=func.now(), server_default=func.now())
+    updated_at = Column(DateTime, default=func.now(), server_default=func.now(), onupdate=func.now())
 
     owner = relationship("User")
     components = relationship("DashboardComponent", back_populates="dashboard",

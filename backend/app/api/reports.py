@@ -1,7 +1,7 @@
 import json
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 
 from app.database import get_db
@@ -21,16 +21,26 @@ dashboard_router = APIRouter(prefix="/api/dashboards", tags=["dashboards"])
 
 # ── Reports ─────────────────────────────────────────────────────────
 
-@router.get("", response_model=list[ReportOut])
+@router.get("", response_model=dict)
 async def list_reports(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     _: User = Depends(require_permission("read")),
 ):
+    count_result = await db.execute(select(func.count(Report.id)))
+    total = count_result.scalar() or 0
     result = await db.execute(
-        select(Report).order_by(Report.created_at.desc())
+        select(Report).order_by(Report.created_at.desc()).offset((page - 1) * page_size).limit(page_size)
     )
-    return result.scalars().all()
+    items = result.scalars().all()
+    return {
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "items": [ReportOut.model_validate(r).model_dump() for r in items],
+    }
 
 
 @router.post("", response_model=ReportOut, status_code=status.HTTP_201_CREATED)
@@ -66,7 +76,7 @@ async def get_report(
     result = await db.execute(select(Report).where(Report.id == report_id))
     report = result.scalar_one_or_none()
     if not report:
-        raise HTTPException(status_code=404, detail="Report not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report not found")
     return report
 
 
@@ -81,7 +91,7 @@ async def update_report(
     result = await db.execute(select(Report).where(Report.id == report_id))
     report = result.scalar_one_or_none()
     if not report:
-        raise HTTPException(status_code=404, detail="Report not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report not found")
 
     update_data = payload.model_dump(exclude_unset=True)
     for key in ["filters", "grouping", "aggregations", "columns"]:
@@ -106,7 +116,7 @@ async def delete_report(
     result = await db.execute(select(Report).where(Report.id == report_id))
     report = result.scalar_one_or_none()
     if not report:
-        raise HTTPException(status_code=404, detail="Report not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report not found")
     await db.delete(report)
     await db.commit()
 
@@ -123,7 +133,7 @@ async def run_report(
     result = await db.execute(select(Report).where(Report.id == report_id))
     report = result.scalar_one_or_none()
     if not report:
-        raise HTTPException(status_code=404, detail="Report not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Report not found")
 
     filters = json.loads(report.filters) if report.filters else None
     grouping = json.loads(report.grouping) if report.grouping else None
@@ -187,7 +197,7 @@ async def get_dashboard(
     )
     dash = result.scalar_one_or_none()
     if not dash:
-        raise HTTPException(status_code=404, detail="Dashboard not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dashboard not found")
     return dash
 
 
@@ -201,7 +211,7 @@ async def delete_dashboard(
     result = await db.execute(select(Dashboard).where(Dashboard.id == dashboard_id))
     dash = result.scalar_one_or_none()
     if not dash:
-        raise HTTPException(status_code=404, detail="Dashboard not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dashboard not found")
     await db.delete(dash)
     await db.commit()
 
@@ -217,7 +227,7 @@ async def add_component(
     result = await db.execute(select(Dashboard).where(Dashboard.id == dashboard_id))
     dash = result.scalar_one_or_none()
     if not dash:
-        raise HTTPException(status_code=404, detail="Dashboard not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dashboard not found")
 
     comp = DashboardComponent(dashboard_id=dashboard_id, **payload.model_dump())
     db.add(comp)
@@ -242,6 +252,6 @@ async def delete_component(
     )
     comp = result.scalar_one_or_none()
     if not comp:
-        raise HTTPException(status_code=404, detail="Component not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Component not found")
     await db.delete(comp)
     await db.commit()

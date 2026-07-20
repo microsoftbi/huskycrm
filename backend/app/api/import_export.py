@@ -12,8 +12,10 @@ from app.schemas.import_export import (
 )
 from app.core.deps import get_current_user
 from app.core.permissions import require_permission
-from app.services.csv_service import parse_csv, create_preview, confirm_import, generate_csv
+from app.services.csv_service import parse_csv, create_preview, confirm_import, generate_csv, get_preview_object_type
 from app.services.audit_service import current_user_id
+from app.models.custom_object import CustomObjectDef
+from app.services.custom_object_service import list_records
 
 router = APIRouter(prefix="/api/import", tags=["import"])
 
@@ -37,16 +39,16 @@ async def upload_csv(
 ):
     """Upload a CSV file, parse it, and return preview data."""
     if not file.filename or not file.filename.endswith(".csv"):
-        raise HTTPException(status_code=400, detail="Only CSV files are supported")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Only CSV files are supported")
 
     content = await file.read()
     try:
         headers, rows = parse_csv(content)
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
     if object_type not in ("account", "contact", "product", "opportunity"):
-        raise HTTPException(status_code=400, detail=f"Unsupported object type: {object_type}")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Unsupported object type: {object_type}")
 
     return ImportPreviewResponse(**create_preview(headers, rows, object_type))
 
@@ -63,19 +65,22 @@ async def confirm_import_endpoint(
     try:
         result = await confirm_import(db, payload.preview_id, payload.mapping, current_user.id)
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     finally:
         current_user_id.reset(token)
 
+    # Retrieve preview to get object_type
+    preview_object_type = get_preview_object_type(payload.preview_id)
+
     # Save import job record
     job = ImportJob(
-        object_type="account",
+        object_type=preview_object_type or "unknown",
         filename="import.csv",
         total_rows=result["success_rows"] + result["error_rows"],
         success_rows=result["success_rows"],
         error_rows=result["error_rows"],
         errors=json.dumps(result["errors"]) if result["errors"] else None,
-        status="completed" if result["error_rows"] == 0 else "completed",
+        status="completed" if result["error_rows"] == 0 else "completed_with_errors",
         created_by=current_user.id,
     )
     db.add(job)
@@ -127,13 +132,11 @@ async def export_csv(
     model_class = EXPORT_MODELS.get(object_type)
     if not model_class:
         # Check if it's a custom object
-        from app.models.custom_object import CustomObjectDef
         result = await db.execute(
             select(CustomObjectDef).where(CustomObjectDef.api_name == object_type)
         )
         obj_def = result.scalar_one_or_none()
         if obj_def:
-            from app.services.custom_object_service import list_records
             records = await list_records(db, obj_def, page=1, page_size=10000)
             if records["items"]:
                 csv_content = generate_csv(object_type, records["items"])
@@ -142,10 +145,12 @@ async def export_csv(
             return PlainTextResponse(csv_content, media_type="text/csv",
                                      headers={"Content-Disposition": f"attachment; filename={object_type}.csv"})
 
-        raise HTTPException(status_code=404, detail=f"Unknown object type: {object_type}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Unknown object type: {object_type}")
 
     # Build query
     query = select(model_class)
+    if hasattr(model_class, "is_deleted"):
+        query = query.where(model_class.is_deleted == False)
     if q:
         if hasattr(model_class, "name"):
             query = query.where(model_class.name.ilike(f"%{q}%"))

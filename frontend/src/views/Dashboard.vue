@@ -35,7 +35,7 @@
         <div class="sf-card">
           <div class="sf-card-body" style="display:flex;align-items:center;gap:16px;">
             <div style="width:48px;height:48px;border-radius:4px;background:#fef0f0;display:flex;align-items:center;justify-content:center;color:#c23934;font-size:24px;">
-              <el-icon :size="24"><trend-chart /></el-icon>
+              <el-icon :size="24"><trend-charts /></el-icon>
             </div>
             <div>
               <div style="font-size:24px;font-weight:700;color:#080707;">{{ stats.totalOpps }}</div>
@@ -85,13 +85,15 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
 import { accountsApi } from '../api/accounts'
 import { contactsApi } from '../api/contacts'
 import { opportunitiesApi } from '../api/opportunities'
+import type { Account, Contact } from '../types/crm'
 
 const stats = reactive({ totalAccounts: 0, totalContacts: 0, totalOpps: 0 })
-const recentAccounts = ref([])
-const recentContacts = ref([])
+const recentAccounts = ref<Account[]>([])
+const recentContacts = ref<Contact[]>([])
 const loadingAccounts = ref(false)
 const loadingContacts = ref(false)
 
@@ -113,7 +115,9 @@ onMounted(async () => {
   try {
     const oppRes = await opportunitiesApi.list({ page: 1, page_size: 1 })
     stats.totalOpps = oppRes.data.total
-  } catch { /* ignore */ }
+  } catch (e) {
+    console.error('Failed to fetch opportunity stats', e)
+  }
 })
 </script>
 

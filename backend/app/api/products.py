@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
+from datetime import datetime
 
 from app.database import get_db
 from app.models.crm import Product
@@ -21,8 +22,8 @@ async def list_products(
     current_user: User = Depends(get_current_user),
     _: User = Depends(require_permission("read")),
 ):
-    query = select(Product)
-    count_query = select(func.count(Product.id))
+    query = select(Product).where(Product.is_deleted == False)
+    count_query = select(func.count(Product.id)).where(Product.is_deleted == False)
 
     if search:
         search_filter = Product.name.ilike(f"%{search}%")
@@ -67,10 +68,10 @@ async def get_product(
     current_user: User = Depends(get_current_user),
     _: User = Depends(require_permission("read")),
 ):
-    result = await db.execute(select(Product).where(Product.id == product_id))
+    result = await db.execute(select(Product).where(Product.id == product_id, Product.is_deleted == False))
     product = result.scalar_one_or_none()
     if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
     return product
 
 
@@ -82,10 +83,10 @@ async def update_product(
     current_user: User = Depends(get_current_user),
     _: User = Depends(require_permission("edit")),
 ):
-    result = await db.execute(select(Product).where(Product.id == product_id))
+    result = await db.execute(select(Product).where(Product.id == product_id, Product.is_deleted == False))
     product = result.scalar_one_or_none()
     if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
 
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(product, field, value)
@@ -102,9 +103,10 @@ async def delete_product(
     current_user: User = Depends(get_current_user),
     _: User = Depends(require_permission("delete")),
 ):
-    result = await db.execute(select(Product).where(Product.id == product_id))
+    result = await db.execute(select(Product).where(Product.id == product_id, Product.is_deleted == False))
     product = result.scalar_one_or_none()
     if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
-    await db.delete(product)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+    product.is_deleted = True
+    product.deleted_at = datetime.now()
     await db.commit()

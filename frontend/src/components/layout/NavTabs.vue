@@ -29,6 +29,10 @@ const tabs = [
   { path: '/products', label: '产品', icon: 'box' },
   { path: '/events', label: '拜访', icon: 'phone' },
   { path: '/opportunities', label: '销售机会', icon: 'TrendCharts' },
+  { path: '/leads', label: '线索', icon: 'aim' },
+  { path: '/campaigns', label: '活动', icon: 'collection-tag' },
+  { path: '/admin/approval-queue', label: '审批', icon: 'finished' },
+  { path: '/admin/recycle-bin', label: '回收站', icon: 'delete' },
 ]
 
 function isActive(path: string): boolean {

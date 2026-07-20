@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, func
 from sqlalchemy.orm import selectinload
 
 from app.database import get_db
@@ -15,9 +15,6 @@ from app.core.security import (
     hash_password, verify_password, create_access_token, create_refresh_token, decode_token
 )
 from app.core.deps import get_current_user
-
-router = APIRouter(prefix="/api/auth", tags=["auth"])
-
 
 async def _user_to_out(user: User, db: AsyncSession) -> UserOut:
     """Build UserOut with profile info."""
@@ -104,14 +101,25 @@ async def get_me(
     return await _user_to_out(current_user, db)
 
 
-@router.get("/users", response_model=list[UserOut])
+@router.get("/users", response_model=dict)
 async def list_users(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    result = await db.execute(select(User).order_by(User.username))
+    count_result = await db.execute(select(func.count(User.id)))
+    total = count_result.scalar() or 0
+    result = await db.execute(
+        select(User).order_by(User.username).offset((page - 1) * page_size).limit(page_size)
+    )
     users = result.scalars().all()
-    return [await _user_to_out(u, db) for u in users]
+    return {
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "items": [await _user_to_out(u, db) for u in users],
+    }
 
 
 @router.put("/users/{user_id}", response_model=UserOut)
@@ -132,7 +140,7 @@ async def update_user(
 
     update_data = payload.model_dump(exclude_unset=True)
     if not update_data:
-        raise HTTPException(status_code=400, detail="No fields to update")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No fields to update")
 
     for field, value in update_data.items():
         setattr(user, field, value)
@@ -151,7 +159,7 @@ async def update_profile(
     # Users cannot change their own profile_id
     update_data = payload.model_dump(exclude_unset=True, exclude={"profile_id"})
     if not update_data:
-        raise HTTPException(status_code=400, detail="No fields to update")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No fields to update")
 
     for field, value in update_data.items():
         setattr(current_user, field, value)
@@ -168,13 +176,13 @@ async def change_password(
     current_user: User = Depends(get_current_user),
 ):
     if payload.new_password != payload.confirm_password:
-        raise HTTPException(status_code=400, detail="New passwords do not match")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="New passwords do not match")
 
     if len(payload.new_password) < 6:
-        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must be at least 6 characters")
 
     if not verify_password(payload.current_password, current_user.password_hash):
-        raise HTTPException(status_code=400, detail="Current password is incorrect")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Current password is incorrect")
 
     current_user.password_hash = hash_password(payload.new_password)
     await db.commit()

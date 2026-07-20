@@ -16,8 +16,8 @@ class WorkflowRule(Base):
     trigger_event = Column(String(50), nullable=False)              # "create", "update", "create_or_update"
     condition_expression = Column(Text)                             # JSON: [{"field":"amount","operator":"gt","value":10000}]
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime, default=func.now(), server_default=func.now())
+    updated_at = Column(DateTime, default=func.now(), server_default=func.now(), onupdate=func.now())
 
     actions = relationship("WorkflowAction", back_populates="workflow",
                            cascade="all, delete-orphan", order_by="WorkflowAction.display_order")
@@ -48,4 +48,4 @@ class WorkflowExecutionLog(Base):
     conditions_met = Column(Boolean, default=False)
     action_executed = Column(Boolean, default=False)
     result_message = Column(Text)
-    executed_at = Column(DateTime, default=func.now(), index=True)
+    executed_at = Column(DateTime, default=func.now(), server_default=func.now(), index=True)

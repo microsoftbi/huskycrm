@@ -119,7 +119,7 @@ async function fetchUsers() {
   loading.value = true
   try {
     const { data } = await authApi.listUsers()
-    users.value = data
+    users.value = data.items
   } catch {
     ElMessage.error('加载用户列表失败')
   } finally {

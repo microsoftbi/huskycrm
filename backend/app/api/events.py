@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -13,7 +15,6 @@ from app.schemas.event import (
 )
 from app.core.deps import get_current_user
 from app.core.permissions import require_permission
-from datetime import datetime
 
 router = APIRouter(prefix="/api/events", tags=["events"])
 
@@ -34,8 +35,8 @@ async def list_events(
     current_user: User = Depends(get_current_user),
     _: User = Depends(require_permission("read")),
 ):
-    query = select(Event).options(selectinload(Event.tasks))
-    count_query = select(func.count(Event.id))
+    query = select(Event).options(selectinload(Event.tasks)).where(Event.is_deleted == False)
+    count_query = select(func.count(Event.id)).where(Event.is_deleted == False)
 
     if search:
         search_filter = Event.subject.ilike(f"%{search}%")
@@ -99,7 +100,7 @@ async def get_event(
     result = await db.execute(
         select(Event)
         .options(selectinload(Event.tasks))
-        .where(Event.id == event_id)
+        .where(Event.id == event_id, Event.is_deleted == False)
     )
     event = result.scalar_one_or_none()
     if not event:
@@ -115,7 +116,7 @@ async def update_event(
     current_user: User = Depends(get_current_user),
     _: User = Depends(require_permission("edit")),
 ):
-    result = await db.execute(select(Event).where(Event.id == event_id))
+    result = await db.execute(select(Event).where(Event.id == event_id, Event.is_deleted == False))
     event = result.scalar_one_or_none()
     if not event:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
@@ -135,11 +136,12 @@ async def delete_event(
     current_user: User = Depends(get_current_user),
     _: User = Depends(require_permission("delete")),
 ):
-    result = await db.execute(select(Event).where(Event.id == event_id))
+    result = await db.execute(select(Event).where(Event.id == event_id, Event.is_deleted == False))
     event = result.scalar_one_or_none()
     if not event:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
-    await db.delete(event)
+    event.is_deleted = True
+    event.deleted_at = datetime.now()
     await db.commit()
 
 
@@ -153,12 +155,12 @@ async def check_in(
     current_user: User = Depends(get_current_user),
     _: User = Depends(require_permission("edit")),
 ):
-    result = await db.execute(select(Event).where(Event.id == event_id))
+    result = await db.execute(select(Event).where(Event.id == event_id, Event.is_deleted == False))
     event = result.scalar_one_or_none()
     if not event:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
     if event.status != "planned":
-        raise HTTPException(status_code=400, detail="Only planned events can be checked in")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Only planned events can be checked in")
 
     event.status = "in_progress"
     event.actual_start_time = datetime.now()
@@ -179,12 +181,12 @@ async def check_out(
     current_user: User = Depends(get_current_user),
     _: User = Depends(require_permission("edit")),
 ):
-    result = await db.execute(select(Event).where(Event.id == event_id))
+    result = await db.execute(select(Event).where(Event.id == event_id, Event.is_deleted == False))
     event = result.scalar_one_or_none()
     if not event:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
     if event.status != "in_progress":
-        raise HTTPException(status_code=400, detail="Only in-progress events can be checked out")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Only in-progress events can be checked out")
 
     now = datetime.now()
     event.status = "completed"
@@ -290,7 +292,7 @@ async def get_account_events(
 ):
     result = await db.execute(
         select(Event)
-        .where(Event.what_id == account_id, Event.what_type == "account")
+        .where(Event.what_id == account_id, Event.what_type == "account", Event.is_deleted == False)
         .order_by(Event.start_datetime.desc())
     )
     return result.scalars().all()
@@ -305,7 +307,7 @@ async def get_contact_events(
 ):
     result = await db.execute(
         select(Event)
-        .where(Event.who_id == contact_id)
+        .where(Event.who_id == contact_id, Event.is_deleted == False)
         .order_by(Event.start_datetime.desc())
     )
     return result.scalars().all()
@@ -320,7 +322,7 @@ async def get_opportunity_events(
 ):
     result = await db.execute(
         select(Event)
-        .where(Event.what_id == opportunity_id, Event.what_type == "opportunity")
+        .where(Event.what_id == opportunity_id, Event.what_type == "opportunity", Event.is_deleted == False)
         .order_by(Event.start_datetime.desc())
     )
     return result.scalars().all()

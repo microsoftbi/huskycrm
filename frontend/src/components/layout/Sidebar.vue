@@ -42,7 +42,7 @@
       </router-link>
 
       <router-link to="/opportunities" class="sf-nav-item" :class="{ active: route.path.startsWith('/opportunities') }">
-        <span class="sf-nav-icon"><el-icon :size="16"><trend-chart /></el-icon></span>
+        <span class="sf-nav-icon"><el-icon :size="16"><trend-charts /></el-icon></span>
         <span>销售机会</span>
       </router-link>
 
@@ -84,11 +84,12 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/authStore'
 import { usePermissions } from '../../composables/usePermissions'
 
 const route = useRoute()
+const router = useRouter()
 const auth = useAuthStore()
 const { isAdmin } = usePermissions()
 
@@ -100,7 +101,7 @@ const userInitial = computed(() => {
 function handleAppCommand(cmd: string) {
   if (cmd === 'logout') {
     auth.logout()
-    window.location.href = '/login'
+    router.push('/login')
   }
 }
 

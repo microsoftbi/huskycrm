@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -14,6 +16,7 @@ from app.schemas.crm import (
 from app.models.crm import Product as ProductModel
 from app.core.deps import get_current_user
 from app.core.permissions import require_permission
+from app.services.validation_service import validate_record
 
 
 async def ensure_stages_seeded():
@@ -66,7 +69,7 @@ async def get_pipeline(
         result = await db.execute(
             select(Opportunity)
             .options(selectinload(Opportunity.line_items))
-            .where(Opportunity.stage_id == stage.id)
+            .where(Opportunity.stage_id == stage.id, Opportunity.is_deleted == False)
         )
         opps = result.scalars().all()
         total_amount = sum((o.amount or 0) for o in opps)
@@ -92,8 +95,8 @@ async def list_opportunities(
     current_user: User = Depends(get_current_user),
     _: User = Depends(require_permission("read")),
 ):
-    query = select(Opportunity).options(selectinload(Opportunity.line_items))
-    count_query = select(func.count(Opportunity.id))
+    query = select(Opportunity).options(selectinload(Opportunity.line_items)).where(Opportunity.is_deleted == False)
+    count_query = select(func.count(Opportunity.id)).where(Opportunity.is_deleted == False)
 
     if search:
         search_filter = Opportunity.name.ilike(f"%{search}%")
@@ -128,10 +131,15 @@ async def create_opportunity(
     current_user: User = Depends(get_current_user),
     _: User = Depends(require_permission("create")),
 ):
+    # Validate against active validation rules
+    errors = await validate_record(db, "opportunity", payload.model_dump(exclude_unset=True))
+    if errors:
+        raise HTTPException(status_code=422, detail={"validation_errors": errors})
+
     # Validate stage exists
     stage = await db.execute(select(Stage).where(Stage.id == payload.stage_id))
     if not stage.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail="Stage not found")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Stage not found")
 
     opp = Opportunity(**payload.model_dump(exclude_unset=True))
     db.add(opp)
@@ -155,11 +163,11 @@ async def get_opportunity(
     result = await db.execute(
         select(Opportunity)
         .options(selectinload(Opportunity.line_items))
-        .where(Opportunity.id == opportunity_id)
+        .where(Opportunity.id == opportunity_id, Opportunity.is_deleted == False)
     )
     opp = result.scalar_one_or_none()
     if not opp:
-        raise HTTPException(status_code=404, detail="Opportunity not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Opportunity not found")
     return opp
 
 
@@ -171,16 +179,21 @@ async def update_opportunity(
     current_user: User = Depends(get_current_user),
     _: User = Depends(require_permission("edit")),
 ):
-    result = await db.execute(select(Opportunity).where(Opportunity.id == opportunity_id))
+    result = await db.execute(select(Opportunity).where(Opportunity.id == opportunity_id, Opportunity.is_deleted == False))
     opp = result.scalar_one_or_none()
     if not opp:
-        raise HTTPException(status_code=404, detail="Opportunity not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Opportunity not found")
 
     update_data = payload.model_dump(exclude_unset=True)
+    # Validate against active validation rules
+    if update_data:
+        errors = await validate_record(db, "opportunity", update_data)
+        if errors:
+            raise HTTPException(status_code=422, detail={"validation_errors": errors})
     if "stage_id" in update_data:
         stage = await db.execute(select(Stage).where(Stage.id == update_data["stage_id"]))
         if not stage.scalar_one_or_none():
-            raise HTTPException(status_code=400, detail="Stage not found")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Stage not found")
 
     for field, value in update_data.items():
         setattr(opp, field, value)
@@ -202,11 +215,12 @@ async def delete_opportunity(
     current_user: User = Depends(get_current_user),
     _: User = Depends(require_permission("delete")),
 ):
-    result = await db.execute(select(Opportunity).where(Opportunity.id == opportunity_id))
+    result = await db.execute(select(Opportunity).where(Opportunity.id == opportunity_id, Opportunity.is_deleted == False))
     opp = result.scalar_one_or_none()
     if not opp:
-        raise HTTPException(status_code=404, detail="Opportunity not found")
-    await db.delete(opp)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Opportunity not found")
+    opp.is_deleted = True
+    opp.deleted_at = datetime.now()
     await db.commit()
 
 
@@ -236,13 +250,13 @@ async def add_line_item(
     # Verify opportunity exists
     opp_result = await db.execute(select(Opportunity).where(Opportunity.id == opportunity_id))
     if not opp_result.scalar_one_or_none():
-        raise HTTPException(status_code=404, detail="Opportunity not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Opportunity not found")
 
     # Verify product exists
     prod_result = await db.execute(select(ProductModel).where(ProductModel.id == payload.product_id))
     prod = prod_result.scalar_one_or_none()
     if not prod:
-        raise HTTPException(status_code=400, detail="Product not found")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Product not found")
 
     total_price = payload.quantity * payload.unit_price
     item = OpportunityProduct(
@@ -274,6 +288,6 @@ async def remove_line_item(
     )
     item = result.scalar_one_or_none()
     if not item:
-        raise HTTPException(status_code=404, detail="Line item not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Line item not found")
     await db.delete(item)
     await db.commit()

@@ -28,13 +28,31 @@ def browser_context_args():
 def registered_user():
     """Register a new test user via API and return credentials."""
     user = {
-        "username": fake.user_name() + fake.random_int(100, 999).__str__(),
-        "email": fake.email(),
+        "username": f"{fake.user_name()}_{int(__import__('time').time() * 1000)}",
+        "email": f"uat_{int(__import__('time').time() * 1000)}_{fake.random_int(100,999)}@test.com",
         "password": "test123",
         "display_name": fake.name(),
     }
     resp = requests.post(f"{API_URL}/auth/register", json=user)
     assert resp.status_code == 201, f"Register failed: {resp.text}"
+
+    # Assign a profile to the user so they have permissions (create/edit/delete)
+    # Login as admin to get superuser token
+    admin_resp = requests.post(f"{API_URL}/auth/login", json={
+        "username": "admin", "password": "admin123",
+    })
+    if admin_resp.status_code == 200:
+        admin_token = admin_resp.json()["access_token"]
+        user_id = resp.json()["id"]
+        # Assign standard profile (prof_standard_01 exists in seeded data)
+        assign_resp = requests.put(
+            f"{API_URL}/auth/users/{user_id}",
+            headers={"Authorization": f"Bearer {admin_token}"},
+            json={"profile_id": "prof_standard_01"},
+        )
+        if assign_resp.status_code != 200:
+            print(f"Warning: Profile assignment failed: {assign_resp.text}")
+
     return user
 
 

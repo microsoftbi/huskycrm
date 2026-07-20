@@ -215,3 +215,11 @@ def generate_csv(object_type: str, records: list[dict]) -> str:
         writer.writerow(row)
 
     return output.getvalue()
+
+
+def get_preview_object_type(preview_id: str) -> str | None:
+    """Retrieve the object_type from a stored preview. Returns None if not found."""
+    preview = _preview_store.get(preview_id)
+    if not preview:
+        return None
+    return preview.get("object_type")

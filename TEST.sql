@@ -374,61 +374,61 @@ INSERT INTO territory_products (id, territory_id, product_id, is_active) VALUES
 
 -- ── Events (15 rows) ───────────────────────────────────────────
 INSERT INTO events (id, subject, type, status, start_datetime, end_datetime, duration_minutes, what_id, what_type, who_id, owner_id, purpose, preparation_notes, description, outcome, next_steps, location) VALUES
-('event_a1b2c3d4e5f6', 'Red Russia 能源设备升级方案演示', 'Visit', 'completed', '2026-06-10 09:00:00', '2026-06-10 11:00:00', 105, 'acc_a1b2c3d4e5f6', 'account', 'con_a1b2c3d4e5f6', 'user_d4e5f6a7b8c9', '演示 AeroGel Insulator 和 LumiSheet Display 产品方案', '准备产品样机和技术参数文档', '客户对 AeroGel 很感兴趣，详细了解了技术指标', 'success', '准备报价单并跟进', 'Red Russia 总部 - 莫斯科');
+('event_a1b2c3d4e5f6', 'Red Russia 能源设备升级方案演示', 'Visit', 'completed', '2026-06-10', '2026-06-10', 105, 'acc_a1b2c3d4e5f6', 'account', 'con_a1b2c3d4e5f6', 'user_d4e5f6a7b8c9', '演示 AeroGel Insulator 和 LumiSheet Display 产品方案', '准备产品样机和技术参数文档', '客户对 AeroGel 很感兴趣，详细了解了技术指标', 'success', '准备报价单并跟进', 'Red Russia 总部 - 莫斯科');
 INSERT INTO events (id, subject, type, status, start_datetime, end_datetime, duration_minutes, what_id, what_type, who_id, owner_id, purpose, preparation_notes, description, outcome, next_steps, location) VALUES
-('event_b2c3d4e5f6a7', 'Red Russia 量子安全方案讨论', 'Visit', 'completed', '2026-05-15 14:00:00', '2026-05-15 16:00:00', 95, 'oppo_f2a3b4c5d6e7', 'opportunity', 'con_b2c3d4e5f6a7', 'user_d4e5f6a7b8c9', '讨论量子加密方案技术细节和实施计划', '准备技术白皮书和案例', '双方就部署方案达成一致', 'success', '准备合同', 'Red Russia 总部 - 莫斯科');
+('event_b2c3d4e5f6a7', 'Red Russia 量子安全方案讨论', 'Visit', 'completed', '2026-05-15', '2026-05-15', 95, 'oppo_f2a3b4c5d6e7', 'opportunity', 'con_b2c3d4e5f6a7', 'user_d4e5f6a7b8c9', '讨论量子加密方案技术细节和实施计划', '准备技术白皮书和案例', '双方就部署方案达成一致', 'success', '准备合同', 'Red Russia 总部 - 莫斯科');
 INSERT INTO events (id, subject, type, status, start_datetime, end_datetime, duration_minutes, what_id, what_type, who_id, owner_id, purpose, preparation_notes, description, outcome, next_steps, location) VALUES
-('event_c3d4e5f6a7b8', 'Red Russia 合同签署拜访', 'Visit', 'completed', '2026-05-28 10:00:00', '2026-05-28 12:00:00', 90, 'oppo_f2a3b4c5d6e7', 'opportunity', 'con_a1b2c3d4e5f6', 'user_d4e5f6a7b8c9', '正式签署采购合同', '带齐合同文件和印章', '合同签署顺利完成', 'success', '安排发货', 'Red Russia 总部 - 莫斯科');
+('event_c3d4e5f6a7b8', 'Red Russia 合同签署拜访', 'Visit', 'completed', '2026-05-28', '2026-05-28', 90, 'oppo_f2a3b4c5d6e7', 'opportunity', 'con_a1b2c3d4e5f6', 'user_d4e5f6a7b8c9', '正式签署采购合同', '带齐合同文件和印章', '合同签署顺利完成', 'success', '安排发货', 'Red Russia 总部 - 莫斯科');
 INSERT INTO events (id, subject, type, status, start_datetime, end_datetime, duration_minutes, what_id, what_type, who_id, owner_id, purpose, preparation_notes, description, outcome, next_steps, location) VALUES
-('event_d4e5f6a7b8c9', 'Libert 健康管理方案初次接触', 'Visit', 'completed', '2026-06-20 10:00:00', '2026-06-20 11:30:00', 75, 'acc_b2c3d4e5f6a7', 'account', 'con_c3d4e5f6a7b8', 'user_e5f6a7b8c9d0', '介绍 BioSync Patch 产品及企业健康管理方案', '准备产品介绍和健康管理方案PPT', '客户VP对方案表示兴趣，希望进行技术评估', 'success', '安排技术演示和样品寄送', 'Libert 硅谷总部');
+('event_d4e5f6a7b8c9', 'Libert 健康管理方案初次接触', 'Visit', 'completed', '2026-06-20', '2026-06-20', 75, 'acc_b2c3d4e5f6a7', 'account', 'con_c3d4e5f6a7b8', 'user_e5f6a7b8c9d0', '介绍 BioSync Patch 产品及企业健康管理方案', '准备产品介绍和健康管理方案PPT', '客户VP对方案表示兴趣，希望进行技术评估', 'success', '安排技术演示和样品寄送', 'Libert 硅谷总部');
 INSERT INTO events (id, subject, type, status, start_datetime, end_datetime, duration_minutes, what_id, what_type, who_id, owner_id, purpose, preparation_notes, description, outcome, next_steps, location) VALUES
-('event_e5f6a7b8c9d0', 'Libert 技术评估会议', 'Video Conference', 'completed', '2026-07-01 14:00:00', '2026-07-01 15:00:00', 50, 'oppo_b2c3d4e5f6a7', 'opportunity', 'con_d4e5f6a7b8c9', 'user_e5f6a7b8c9d0', '线上技术评估会议', '准备技术文档和QA', '技术团队提出了一些兼容性问题', 'neutral', '提供补充技术资料', '线上 - Zoom');
+('event_e5f6a7b8c9d0', 'Libert 技术评估会议', 'Video Conference', 'completed', '2026-07-01', '2026-07-01', 50, 'oppo_b2c3d4e5f6a7', 'opportunity', 'con_d4e5f6a7b8c9', 'user_e5f6a7b8c9d0', '线上技术评估会议', '准备技术文档和QA', '技术团队提出了一些兼容性问题', 'neutral', '提供补充技术资料', '线上 - Zoom');
 INSERT INTO events (id, subject, type, status, start_datetime, end_datetime, duration_minutes, what_id, what_type, who_id, owner_id, purpose, preparation_notes, description, outcome, next_steps, location) VALUES
-('event_f6a7b8c9d0e1', 'Baji 工业传感器项目启动会', 'Visit', 'completed', '2026-06-05 09:30:00', '2026-06-05 12:00:00', 135, 'acc_c3d4e5f6a7b8', 'account', 'con_e5f6a7b8c9d0', 'user_f6a7b8c9d0e1', '项目启动会议，确认需求和范围', '准备项目方案书和报价', '确认了项目范围和初步时间表', 'success', '准备详细实施方案', 'Baji 上海总部');
-INSERT INTO events (id, subject, type, status, start_datetime, end_datetime, what_id, what_type, who_id, owner_id, purpose, preparation_notes, description, outcome, next_steps, location) VALUES
-('event_a7b8c9d0e1f2', 'Baji 商务谈判', 'Visit', 'in_progress', '2026-07-16 10:00:00', '2026-07-16 16:00:00', 'acc_c3d4e5f6a7b8', 'account', 'con_f6a7b8c9d0e1', 'user_f6a7b8c9d0e1', '价格谈判和合同条款讨论', '准备谈判策略和底线价格', '谈判正在进行中', 'neutral', '跟进客户反馈', 'Baji 上海总部 - 会议室A');
+('event_f6a7b8c9d0e1', 'Baji 工业传感器项目启动会', 'Visit', 'completed', '2026-06-05', '2026-06-05', 135, 'acc_c3d4e5f6a7b8', 'account', 'con_e5f6a7b8c9d0', 'user_f6a7b8c9d0e1', '项目启动会议，确认需求和范围', '准备项目方案书和报价', '确认了项目范围和初步时间表', 'success', '准备详细实施方案', 'Baji 上海总部');
 INSERT INTO events (id, subject, type, status, start_datetime, end_datetime, duration_minutes, what_id, what_type, who_id, owner_id, purpose, preparation_notes, description, outcome, next_steps, location) VALUES
-('event_b8c9d0e1f2a3', 'HHK 量子安全方案初次介绍', 'Visit', 'completed', '2026-07-10 14:00:00', '2026-07-10 16:00:00', 90, 'acc_e5f6a7b8c9d0', 'account', 'con_c9d0e1f2a3b4', 'user_b8c9d0e1f2a3', '介绍量子密钥加密方案', '准备方案PPT和金融行业案例', '客户投资总监表示需要内部评估', 'neutral', '跟进内部评估进展', 'HHK 香港总部');
+('event_a7b8c9d0e1f2', 'Baji 商务谈判', 'Visit', 'in_progress', '2026-07-16', '2026-07-16', NULL, 'acc_c3d4e5f6a7b8', 'account', 'con_f6a7b8c9d0e1', 'user_f6a7b8c9d0e1', '价格谈判和合同条款讨论', '准备谈判策略和底线价格', '谈判正在进行中', 'neutral', '跟进客户反馈', 'Baji 上海总部 - 会议室A');
 INSERT INTO events (id, subject, type, status, start_datetime, end_datetime, duration_minutes, what_id, what_type, who_id, owner_id, purpose, preparation_notes, description, outcome, next_steps, location) VALUES
-('event_c9d0e1f2a3b4', 'East Tooth 研发设备需求沟通', 'Phone Call', 'completed', '2026-07-05 11:00:00', '2026-07-05 11:30:00', 25, 'acc_f6a7b8c9d0e1', 'account', 'con_e1f2a3b4c5d6', 'user_d0e1f2a3b4c5', '电话沟通设备需求细节', '提前了解客户需求文档', '客户明确了设备清单和预算', 'success', '准备正式报价', '电话沟通');
+('event_b8c9d0e1f2a3', 'HHK 量子安全方案初次介绍', 'Visit', 'completed', '2026-07-10', '2026-07-10', 90, 'acc_e5f6a7b8c9d0', 'account', 'con_c9d0e1f2a3b4', 'user_b8c9d0e1f2a3', '介绍量子密钥加密方案', '准备方案PPT和金融行业案例', '客户投资总监表示需要内部评估', 'neutral', '跟进内部评估进展', 'HHK 香港总部');
 INSERT INTO events (id, subject, type, status, start_datetime, end_datetime, duration_minutes, what_id, what_type, who_id, owner_id, purpose, preparation_notes, description, outcome, next_steps, location) VALUES
-('event_d0e1f2a3b4c5', 'NovaStar 智能管理系统方案评审', 'Visit', 'completed', '2026-06-25 09:00:00', '2026-06-25 12:00:00', 150, 'acc_b8c9d0e1f2a3', 'account', 'con_c5d6e7f8a9b0', 'user_f2a3b4c5d6e7', '方案评审会', '准备完整的技术方案文档', 'CTO对方案表示认可，需调整部署架构', 'success', '调整方案架构后再次提交', 'NovaStar 纽约总部');
+('event_c9d0e1f2a3b4', 'East Tooth 研发设备需求沟通', 'Phone Call', 'completed', '2026-07-05', '2026-07-05', 25, 'acc_f6a7b8c9d0e1', 'account', 'con_e1f2a3b4c5d6', 'user_d0e1f2a3b4c5', '电话沟通设备需求细节', '提前了解客户需求文档', '客户明确了设备清单和预算', 'success', '准备正式报价', '电话沟通');
 INSERT INTO events (id, subject, type, status, start_datetime, end_datetime, duration_minutes, what_id, what_type, who_id, owner_id, purpose, preparation_notes, description, outcome, next_steps, location) VALUES
-('event_e1f2a3b4c5d6', 'CrystalLake 合同细节确认', 'Visit', 'completed', '2026-07-12 10:00:00', '2026-07-12 12:00:00', 100, 'oppo_c9d0e1f2a3b4', 'opportunity', 'con_e7f8a9b0c1d2', 'user_f2a3b4c5d6e7', '确认合同最终条款和交付时间', '准备最终合同版本', '双方确认所有条款，即将签署', 'success', '安排合同签署', 'CrystalLake 波士顿总部');
+('event_d0e1f2a3b4c5', 'NovaStar 智能管理系统方案评审', 'Visit', 'completed', '2026-06-25', '2026-06-25', 150, 'acc_b8c9d0e1f2a3', 'account', 'con_c5d6e7f8a9b0', 'user_f2a3b4c5d6e7', '方案评审会', '准备完整的技术方案文档', 'CTO对方案表示认可，需调整部署架构', 'success', '调整方案架构后再次提交', 'NovaStar 纽约总部');
+INSERT INTO events (id, subject, type, status, start_datetime, end_datetime, duration_minutes, what_id, what_type, who_id, owner_id, purpose, preparation_notes, description, outcome, next_steps, location) VALUES
+('event_e1f2a3b4c5d6', 'CrystalLake 合同细节确认', 'Visit', 'completed', '2026-07-12', '2026-07-12', 100, 'oppo_c9d0e1f2a3b4', 'opportunity', 'con_e7f8a9b0c1d2', 'user_f2a3b4c5d6e7', '确认合同最终条款和交付时间', '准备最终合同版本', '双方确认所有条款，即将签署', 'success', '安排合同签署', 'CrystalLake 波士顿总部');
 INSERT INTO events (id, subject, type, status, start_datetime, end_datetime, what_id, what_type, who_id, owner_id, purpose, preparation_notes, next_steps, location) VALUES
-('event_f2a3b4c5d6e7', 'Puti Tooth 冷链物流需求调研', 'Visit', 'planned', '2026-07-22 10:00:00', '2026-07-22 12:00:00', 'acc_a7b8c9d0e1f2', 'account', 'con_a3b4c5d6e7f8', 'user_e1f2a3b4c5d6', '现场调研冷链物流现有系统和需求', '准备调研问卷和方案框架', '完成调研后输出方案', 'Puti Tooth 伦敦总部');
+('event_f2a3b4c5d6e7', 'Puti Tooth 冷链物流需求调研', 'Visit', 'planned', '2026-07-22', '2026-07-22', 'acc_a7b8c9d0e1f2', 'account', 'con_a3b4c5d6e7f8', 'user_e1f2a3b4c5d6', '现场调研冷链物流现有系统和需求', '准备调研问卷和方案框架', '完成调研后输出方案', 'Puti Tooth 伦敦总部');
 INSERT INTO events (id, subject, type, status, start_datetime, end_datetime, duration_minutes, what_id, what_type, who_id, owner_id, purpose, preparation_notes, description, outcome, next_steps, location) VALUES
-('event_a3b4c5d6e7f8', 'DeepBlue 溯源方案视频沟通', 'Video Conference', 'completed', '2026-07-08 08:00:00', '2026-07-08 09:00:00', 50, 'acc_e1f2a3b4c5d6', 'account', 'con_a9b0c1d2e3f4', 'user_b4c5d6e7f8a9', '远程演示溯源系统方案', '准备方案演示和Demo环境', '客户CEO对方案感兴趣，希望进一步了解', 'success', '安排下一次详细技术交流', '线上 - Teams');
+('event_a3b4c5d6e7f8', 'DeepBlue 溯源方案视频沟通', 'Video Conference', 'completed', '2026-07-08', '2026-07-08', 50, 'acc_e1f2a3b4c5d6', 'account', 'con_a9b0c1d2e3f4', 'user_b4c5d6e7f8a9', '远程演示溯源系统方案', '准备方案演示和Demo环境', '客户CEO对方案感兴趣，希望进一步了解', 'success', '安排下一次详细技术交流', '线上 - Teams');
 INSERT INTO events (id, subject, type, status, start_datetime, end_datetime, duration_minutes, what_id, what_type, who_id, owner_id, purpose, preparation_notes, description, outcome, next_steps, location) VALUES
-('event_b4c5d6e7f8a9', 'Taji 门店数字化方案演示', 'Visit', 'completed', '2026-06-28 13:00:00', '2026-06-28 16:00:00', 150, 'acc_d4e5f6a7b8c9', 'account', 'con_a7b8c9d0e1f2', 'user_a7b8c9d0e1f2', '现场演示数字化门店解决方案', '准备Demo环境和案例视频', '客户CEO非常认可方案', 'success', '准备项目报价', 'Taji 杭州总部 - 展示厅');
+('event_b4c5d6e7f8a9', 'Taji 门店数字化方案演示', 'Visit', 'completed', '2026-06-28', '2026-06-28', 150, 'acc_d4e5f6a7b8c9', 'account', 'con_a7b8c9d0e1f2', 'user_a7b8c9d0e1f2', '现场演示数字化门店解决方案', '准备Demo环境和案例视频', '客户CEO非常认可方案', 'success', '准备项目报价', 'Taji 杭州总部 - 展示厅');
 
 -- ── Tasks (13 rows) ────────────────────────────────────────────
-INSERT INTO tasks (id, event_id, subject, status, priority, owner_id, due_datetime, completion_notes) VALUES
-('task_a1b2c3d4e5f6', 'event_a1b2c3d4e5f6', '准备 Red Russia 报价单', 'completed', 'high', 'user_d4e5f6a7b8c9', '2026-06-12 18:00:00', '已完成报价单发送');
-INSERT INTO tasks (id, event_id, subject, status, priority, owner_id, due_datetime) VALUES
-('task_b2c3d4e5f6a7', 'event_a1b2c3d4e5f6', '跟进 Red Russia 技术参数确认', 'in_progress', 'medium', 'user_d4e5f6a7b8c9', '2026-06-20 18:00:00');
-INSERT INTO tasks (id, event_id, subject, status, priority, owner_id, due_datetime, completion_notes) VALUES
-('task_c3d4e5f6a7b8', 'event_d4e5f6a7b8c9', '寄送 BioSync Patch 样品', 'completed', 'high', 'user_e5f6a7b8c9d0', '2026-06-25 18:00:00', '样品已通过 DHL 寄送');
-INSERT INTO tasks (id, event_id, subject, status, priority, owner_id, due_datetime) VALUES
-('task_d4e5f6a7b8c9', 'event_e5f6a7b8c9d0', '准备 Libert 技术补充资料', 'pending', 'high', 'user_e5f6a7b8c9d0', '2026-07-08 18:00:00');
-INSERT INTO tasks (id, event_id, subject, status, priority, owner_id, due_datetime, completion_notes) VALUES
-('task_e5f6a7b8c9d0', 'event_f6a7b8c9d0e1', '编写 Baji 详细实施方案', 'completed', 'high', 'user_f6a7b8c9d0e1', '2026-06-15 18:00:00', '方案已完成并提交客户');
-INSERT INTO tasks (id, event_id, subject, status, priority, owner_id, due_datetime) VALUES
-('task_f6a7b8c9d0e1', 'event_a7b8c9d0e1f2', 'Baji 谈判后续 - 整理客户反馈', 'pending', 'medium', 'user_f6a7b8c9d0e1', '2026-07-20 18:00:00');
-INSERT INTO tasks (id, event_id, subject, status, priority, owner_id, due_datetime) VALUES
-('task_a7b8c9d0e1f2', 'event_c9d0e1f2a3b4', '准备 East Tooth 正式报价', 'in_progress', 'high', 'user_d0e1f2a3b4c5', '2026-07-10 18:00:00');
-INSERT INTO tasks (id, event_id, subject, status, priority, owner_id, due_datetime) VALUES
-('task_b8c9d0e1f2a3', 'event_d0e1f2a3b4c5', '调整 NovaStar 方案架构', 'in_progress', 'high', 'user_f2a3b4c5d6e7', '2026-07-03 18:00:00');
-INSERT INTO tasks (id, event_id, subject, status, priority, owner_id, due_datetime, completion_notes) VALUES
-('task_c9d0e1f2a3b4', 'event_e1f2a3b4c5d6', '准备 CrystalLake 合同终版', 'completed', 'high', 'user_f2a3b4c5d6e7', '2026-07-15 18:00:00', '合同已准备完毕，待签署');
-INSERT INTO tasks (id, event_id, subject, status, priority, owner_id, due_datetime) VALUES
-('task_d0e1f2a3b4c5', 'event_e1f2a3b4c5d6', '安排 CrystalLake 合同签署', 'pending', 'high', 'user_f2a3b4c5d6e7', '2026-07-18 18:00:00');
-INSERT INTO tasks (id, event_id, subject, status, priority, owner_id, due_datetime) VALUES
-('task_e1f2a3b4c5d6', 'event_b8c9d0e1f2a3', '跟进 HHK 内部评估进展', 'in_progress', 'medium', 'user_b8c9d0e1f2a3', '2026-07-25 18:00:00');
-INSERT INTO tasks (id, event_id, subject, status, priority, owner_id, due_datetime) VALUES
-('task_f2a3b4c5d6e7', 'event_f2a3b4c5d6e7', '准备 Puti Tooth 调研报告', 'pending', 'medium', 'user_e1f2a3b4c5d6', '2026-07-25 18:00:00');
-INSERT INTO tasks (id, event_id, subject, status, priority, owner_id, due_datetime) VALUES
-('task_a3b4c5d6e7f8', 'event_b4c5d6e7f8a9', '准备 Taji 项目报价', 'pending', 'high', 'user_a7b8c9d0e1f2', '2026-07-05 18:00:00');
+INSERT INTO tasks (id, event_id, subject, status, priority, assignee_id, activity_date) VALUES
+('task_a1b2c3d4e5f6', 'event_a1b2c3d4e5f6', '准备 Red Russia 报价单', 'completed', 'high', 'user_d4e5f6a7b8c9', '2026-06-12');
+INSERT INTO tasks (id, event_id, subject, status, priority, assignee_id, activity_date) VALUES
+('task_b2c3d4e5f6a7', 'event_a1b2c3d4e5f6', '跟进 Red Russia 技术参数确认', 'in_progress', 'medium', 'user_d4e5f6a7b8c9', '2026-06-20');
+INSERT INTO tasks (id, event_id, subject, status, priority, assignee_id, activity_date) VALUES
+('task_c3d4e5f6a7b8', 'event_d4e5f6a7b8c9', '寄送 BioSync Patch 样品', 'completed', 'high', 'user_e5f6a7b8c9d0', '2026-06-25');
+INSERT INTO tasks (id, event_id, subject, status, priority, assignee_id, activity_date) VALUES
+('task_d4e5f6a7b8c9', 'event_e5f6a7b8c9d0', '准备 Libert 技术补充资料', 'pending', 'high', 'user_e5f6a7b8c9d0', '2026-07-08');
+INSERT INTO tasks (id, event_id, subject, status, priority, assignee_id, activity_date) VALUES
+('task_e5f6a7b8c9d0', 'event_f6a7b8c9d0e1', '编写 Baji 详细实施方案', 'completed', 'high', 'user_f6a7b8c9d0e1', '2026-06-15');
+INSERT INTO tasks (id, event_id, subject, status, priority, assignee_id, activity_date) VALUES
+('task_f6a7b8c9d0e1', 'event_a7b8c9d0e1f2', 'Baji 谈判后续 - 整理客户反馈', 'pending', 'medium', 'user_f6a7b8c9d0e1', '2026-07-20');
+INSERT INTO tasks (id, event_id, subject, status, priority, assignee_id, activity_date) VALUES
+('task_a7b8c9d0e1f2', 'event_c9d0e1f2a3b4', '准备 East Tooth 正式报价', 'in_progress', 'high', 'user_d0e1f2a3b4c5', '2026-07-10');
+INSERT INTO tasks (id, event_id, subject, status, priority, assignee_id, activity_date) VALUES
+('task_b8c9d0e1f2a3', 'event_d0e1f2a3b4c5', '调整 NovaStar 方案架构', 'in_progress', 'high', 'user_f2a3b4c5d6e7', '2026-07-03');
+INSERT INTO tasks (id, event_id, subject, status, priority, assignee_id, activity_date) VALUES
+('task_c9d0e1f2a3b4', 'event_e1f2a3b4c5d6', '准备 CrystalLake 合同终版', 'completed', 'high', 'user_f2a3b4c5d6e7', '2026-07-15');
+INSERT INTO tasks (id, event_id, subject, status, priority, assignee_id, activity_date) VALUES
+('task_d0e1f2a3b4c5', 'event_e1f2a3b4c5d6', '安排 CrystalLake 合同签署', 'pending', 'high', 'user_f2a3b4c5d6e7', '2026-07-18');
+INSERT INTO tasks (id, event_id, subject, status, priority, assignee_id, activity_date) VALUES
+('task_e1f2a3b4c5d6', 'event_b8c9d0e1f2a3', '跟进 HHK 内部评估进展', 'in_progress', 'medium', 'user_b8c9d0e1f2a3', '2026-07-25');
+INSERT INTO tasks (id, event_id, subject, status, priority, assignee_id, activity_date) VALUES
+('task_f2a3b4c5d6e7', 'event_f2a3b4c5d6e7', '准备 Puti Tooth 调研报告', 'pending', 'medium', 'user_e1f2a3b4c5d6', '2026-07-25');
+INSERT INTO tasks (id, event_id, subject, status, priority, assignee_id, activity_date) VALUES
+('task_a3b4c5d6e7f8', 'event_b4c5d6e7f8a9', '准备 Taji 项目报价', 'pending', 'high', 'user_a7b8c9d0e1f2', '2026-07-05');
 
 -- ── Reports ────────────────────────────────────────────────────
 INSERT INTO reports (id, name, object_type, report_type, owner_id) VALUES

@@ -26,8 +26,10 @@ class FieldDefCreate(FieldDefBase):
 class FieldDefOut(FieldDefBase):
     id: str
     object_id: str
-    created_at: datetime
-    updated_at: datetime
+    is_required: Optional[bool] = False
+    is_unique: Optional[bool] = False
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     @field_validator("picklist_values", mode="before")
     @classmethod
@@ -63,10 +65,10 @@ class ObjectDefUpdate(BaseModel):
 class ObjectDefOut(ObjectDefBase):
     id: str
     table_name: str
-    is_active: bool
+    is_active: Optional[bool] = False
     fields: list[FieldDefOut] = []
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

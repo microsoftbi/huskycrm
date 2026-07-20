@@ -14,4 +14,4 @@ class AuditLog(Base):
     new_value = Column(String, nullable=True)
     action = Column(String(20), nullable=False)  # "create" | "update" | "delete"
     user_id = Column(String(36), nullable=False, index=True)
-    created_at = Column(DateTime, default=func.now())
+    created_at = Column(DateTime, default=func.now(), server_default=func.now())

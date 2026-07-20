@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, delete
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
 from app.database import get_db
@@ -13,7 +14,7 @@ from app.schemas.territory import (
     TerritoryAccountOut, TerritoryAccountCreate,
     TerritoryProductOut, TerritoryProductCreate, TerritoryProductUpdate,
 )
-from app.schemas.crm import StageOut, PipelineOut, PipelineStageData
+from app.schemas.crm import StageOut, PipelineOut, PipelineStageData, OpportunityOut
 from app.core.deps import get_current_user
 from app.core.permissions import require_permission
 from app.services.notification_service import create_notification
@@ -52,16 +53,27 @@ def _make_territory_out(t: Territory, children: list = None,
 
 # ── CRUD ─────────────────────────────────────────────────────────────
 
-@router.get("", response_model=list[TerritoryOut])
+@router.get("", response_model=dict)
 async def list_territories(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
     search: str = Query("", max_length=255),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     _: User = Depends(require_permission("read")),
 ):
+    count_query = select(func.count(Territory.id))
     query = select(Territory).options(selectinload(Territory.children)).order_by(Territory.name)
+
     if search:
-        query = query.where(Territory.name.ilike(f"%{search}%"))
+        search_filter = Territory.name.ilike(f"%{search}%")
+        query = query.where(search_filter)
+        count_query = count_query.where(search_filter)
+
+    total_result = await db.execute(count_query)
+    total = total_result.scalar() or 0
+
+    query = query.offset((page - 1) * page_size).limit(page_size)
     result = await db.execute(query)
     territories = result.scalars().all()
 
@@ -82,7 +94,12 @@ async def list_territories(
                                        member_count=member_count or 0,
                                        account_count=account_count or 0,
                                        product_count=product_count or 0))
-    return out
+    return {
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "items": out,
+    }
 
 
 @router.get("/tree", response_model=list[TerritoryTreeNode])
@@ -107,11 +124,18 @@ async def create_territory(
     if payload.parent_id:
         parent = await db.get(Territory, payload.parent_id)
         if not parent:
-            raise HTTPException(status_code=400, detail="Parent territory not found")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Parent territory not found")
 
     territory = Territory(**payload.model_dump(exclude_unset=True))
     db.add(territory)
-    await db.commit()
+    try:
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A territory with this code already exists",
+        )
     await db.refresh(territory)
     return TerritoryOut(
         **{c.name: getattr(territory, c.name) for c in territory.__table__.columns},
@@ -133,7 +157,7 @@ async def get_territory(
     )
     territory = result.scalar_one_or_none()
     if not territory:
-        raise HTTPException(status_code=404, detail="Territory not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Territory not found")
 
     member_count = await db.scalar(
         select(func.count(TerritoryMember.id)).where(TerritoryMember.territory_id == territory_id)
@@ -147,7 +171,7 @@ async def get_territory(
 
     return _make_territory_out(
         territory,
-        children=[_make_territory_out(c) for c in (territory.children or [])],
+        children=[_make_territory_out(c) for c in territory.children],
         member_count=member_count or 0,
         account_count=account_count or 0,
         product_count=product_count or 0,
@@ -167,21 +191,23 @@ async def update_territory(
     )
     territory = result.scalar_one_or_none()
     if not territory:
-        raise HTTPException(status_code=404, detail="Territory not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Territory not found")
 
     update_data = payload.model_dump(exclude_unset=True)
     if "parent_id" in update_data and update_data["parent_id"] is not None:
         if update_data["parent_id"] == territory_id:
-            raise HTTPException(status_code=400, detail="Cannot set self as parent")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot set self as parent")
         parent = await db.get(Territory, update_data["parent_id"])
         if not parent:
-            raise HTTPException(status_code=400, detail="Parent territory not found")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Parent territory not found")
 
     for field, value in update_data.items():
         setattr(territory, field, value)
 
-    await db.commit()
+    # Build a plain dict BEFORE commit to avoid ORM lazy loading issues
+    data = {c.name: getattr(territory, c.name) for c in Territory.__table__.columns}
 
+    # Load related data before commit
     member_count = await db.scalar(
         select(func.count(TerritoryMember.id)).where(TerritoryMember.territory_id == territory_id)
     )
@@ -192,9 +218,11 @@ async def update_territory(
         select(func.count(TerritoryProduct.id)).where(TerritoryProduct.territory_id == territory_id)
     )
 
-    return _make_territory_out(
-        territory,
-        children=[_make_territory_out(c) for c in (territory.children or [])],
+    await db.commit()
+
+    return TerritoryOut(
+        **data,
+        children=[],
         member_count=member_count or 0,
         account_count=account_count or 0,
         product_count=product_count or 0,
@@ -211,7 +239,7 @@ async def delete_territory(
     result = await db.execute(select(Territory).where(Territory.id == territory_id))
     territory = result.scalar_one_or_none()
     if not territory:
-        raise HTTPException(status_code=404, detail="Territory not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Territory not found")
     await db.delete(territory)
     await db.commit()
 
@@ -228,7 +256,7 @@ async def list_members(
     # Verify territory exists
     territory = await db.get(Territory, territory_id)
     if not territory:
-        raise HTTPException(status_code=404, detail="Territory not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Territory not found")
 
     result = await db.execute(
         select(TerritoryMember).where(TerritoryMember.territory_id == territory_id)
@@ -257,11 +285,11 @@ async def add_member(
 ):
     territory = await db.get(Territory, territory_id)
     if not territory:
-        raise HTTPException(status_code=404, detail="Territory not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Territory not found")
 
     user = await db.get(User, payload.user_id)
     if not user:
-        raise HTTPException(status_code=400, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User not found")
 
     # Check for duplicate
     existing = await db.execute(
@@ -271,7 +299,7 @@ async def add_member(
         )
     )
     if existing.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail="Member already exists")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Member already exists")
 
     member = TerritoryMember(territory_id=territory_id, user_id=payload.user_id, role=payload.role)
     db.add(member)
@@ -311,7 +339,7 @@ async def remove_member(
     )
     member = result.scalar_one_or_none()
     if not member:
-        raise HTTPException(status_code=404, detail="Member not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found")
     await db.delete(member)
     await db.commit()
 
@@ -327,7 +355,7 @@ async def list_territory_accounts(
 ):
     territory = await db.get(Territory, territory_id)
     if not territory:
-        raise HTTPException(status_code=404, detail="Territory not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Territory not found")
 
     result = await db.execute(
         select(TerritoryAccount).where(TerritoryAccount.territory_id == territory_id)
@@ -355,11 +383,11 @@ async def add_territory_account(
 ):
     territory = await db.get(Territory, territory_id)
     if not territory:
-        raise HTTPException(status_code=404, detail="Territory not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Territory not found")
 
     account = await db.get(Account, payload.account_id)
     if not account:
-        raise HTTPException(status_code=400, detail="Account not found")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Account not found")
 
     existing = await db.execute(
         select(TerritoryAccount).where(
@@ -368,7 +396,7 @@ async def add_territory_account(
         )
     )
     if existing.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail="Account already assigned to this territory")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Account already assigned to this territory")
 
     ta = TerritoryAccount(territory_id=territory_id, account_id=payload.account_id)
     db.add(ta)
@@ -396,7 +424,7 @@ async def remove_territory_account(
     )
     ta = result.scalar_one_or_none()
     if not ta:
-        raise HTTPException(status_code=404, detail="Account assignment not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Account assignment not found")
     await db.delete(ta)
     await db.commit()
 
@@ -412,7 +440,7 @@ async def list_territory_products(
 ):
     territory = await db.get(Territory, territory_id)
     if not territory:
-        raise HTTPException(status_code=404, detail="Territory not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Territory not found")
 
     result = await db.execute(
         select(TerritoryProduct).where(TerritoryProduct.territory_id == territory_id)
@@ -443,11 +471,11 @@ async def add_territory_product(
 ):
     territory = await db.get(Territory, territory_id)
     if not territory:
-        raise HTTPException(status_code=404, detail="Territory not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Territory not found")
 
     product = await db.get(Product, payload.product_id)
     if not product:
-        raise HTTPException(status_code=400, detail="Product not found")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Product not found")
 
     existing = await db.execute(
         select(TerritoryProduct).where(
@@ -456,7 +484,7 @@ async def add_territory_product(
         )
     )
     if existing.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail="Product already assigned to this territory")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Product already assigned to this territory")
 
     tp = TerritoryProduct(
         territory_id=territory_id, product_id=payload.product_id,
@@ -491,7 +519,7 @@ async def update_territory_product(
     )
     tp = result.scalar_one_or_none()
     if not tp:
-        raise HTTPException(status_code=404, detail="Product assignment not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product assignment not found")
 
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(tp, field, value)
@@ -526,7 +554,7 @@ async def remove_territory_product(
     )
     tp = result.scalar_one_or_none()
     if not tp:
-        raise HTTPException(status_code=404, detail="Product assignment not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product assignment not found")
     await db.delete(tp)
     await db.commit()
 
@@ -542,7 +570,7 @@ async def get_territory_pipeline(
 ):
     territory = await db.get(Territory, territory_id)
     if not territory:
-        raise HTTPException(status_code=404, detail="Territory not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Territory not found")
 
     # Get account IDs for this territory
     acct_result = await db.execute(

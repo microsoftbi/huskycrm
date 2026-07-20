@@ -105,9 +105,9 @@ const { can, canDelete } = usePermissions()
 const opportunity = ref<Opportunity | null>(null)
 const stages = ref<Stage[]>([])
 const loading = ref(false)
-const stageMap = ref<Record<number, Stage>>({})
+const stageMap = ref<Record<string, Stage>>({})
 const lineItems = ref<LineItem[]>([])
-const productMap = ref<Record<number, Product>>({})
+const productMap = ref<Record<string, Product>>({})
 
 const timelineEntries = ref<TimelineEntry[]>([])
 const timelineLoading = ref(false)
@@ -146,11 +146,11 @@ const systemFields = computed(() => [
   { label: '更新时间', apiName: 'updated_at', value: opportunity.value?.updated_at },
 ])
 
-function getStepIndex(stageId: number): number {
+function getStepIndex(stageId: string): number {
   return stages.value.findIndex(s => s.id === stageId)
 }
 
-async function moveToStage(stageId: number) {
+async function moveToStage(stageId: string) {
   if (!opportunity.value || opportunity.value.stage_id === stageId) return
   try {
     await opportunitiesApi.update(opportunity.value.id, {

@@ -43,6 +43,8 @@ export interface Contact {
   title?: string
   department?: string
   account_id?: string
+  account_name?: string
+  accounts?: ContactAccount[]
   owner_id?: string
   created_at: string
   updated_at: string
@@ -61,6 +63,18 @@ export interface ContactCreate {
 }
 
 export interface ContactUpdate extends Partial<ContactCreate> {}
+
+export interface ContactAccount {
+  id: string
+  contact_id: string
+  account_id: string
+  account_name?: string
+  assigned_at?: string
+}
+
+export interface ContactAccountCreate {
+  account_id: string
+}
 
 export interface Product {
   id: string

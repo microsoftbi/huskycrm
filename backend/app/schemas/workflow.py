@@ -49,8 +49,8 @@ class WorkflowRuleOut(WorkflowRuleBase):
     id: str
     is_active: bool
     actions: list[WorkflowActionOut] = []
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     @field_validator("condition_expression", mode="before")
     @classmethod
@@ -75,7 +75,7 @@ class WorkflowLogOut(BaseModel):
     conditions_met: bool
     action_executed: bool
     result_message: Optional[str] = None
-    executed_at: datetime
+    executed_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

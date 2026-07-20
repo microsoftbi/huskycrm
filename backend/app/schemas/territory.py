@@ -31,8 +31,8 @@ class TerritoryUpdate(BaseModel):
 
 class TerritoryOut(TerritoryBase):
     id: str
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
     children: list["TerritoryOut"] = []
     member_count: int = 0
     account_count: int = 0
@@ -60,7 +60,7 @@ class TerritoryMemberOut(BaseModel):
     role: str
     username: Optional[str] = None
     display_name: Optional[str] = None
-    assigned_at: datetime
+    assigned_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -78,7 +78,7 @@ class TerritoryAccountOut(BaseModel):
     territory_id: str
     account_id: str
     account_name: Optional[str] = None
-    assigned_at: datetime
+    assigned_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

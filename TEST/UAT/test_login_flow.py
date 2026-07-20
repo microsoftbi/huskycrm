@@ -26,7 +26,7 @@ class TestLoginFlow:
         # Verify redirected to dashboard
         page.wait_for_url(f"{BASE_URL}/")
         expect(page.get_by_role("heading", name="仪表盘")).to_be_visible()
-        expect(page.locator("text=SPSF CRM").first).to_be_visible()
+        expect(page.locator("text=Husky CRM").first).to_be_visible()
 
     def test_wrong_password(self, page, registered_user):
         """UAT-LOGIN-02: Wrong password shows error."""

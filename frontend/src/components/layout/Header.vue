@@ -31,7 +31,7 @@
           <el-dropdown-menu>
             <el-dropdown-item command="account"><el-icon><office-building /></el-icon>账户</el-dropdown-item>
             <el-dropdown-item command="contact"><el-icon><user /></el-icon>联系人</el-dropdown-item>
-            <el-dropdown-item command="opportunity"><el-icon><trend-chart /></el-icon>销售机会</el-dropdown-item>
+            <el-dropdown-item command="opportunity"><el-icon><TrendCharts /></el-icon>销售机会</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
@@ -63,7 +63,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Setting, SetUp } from '@element-plus/icons-vue'
+import { Setting, SetUp, TrendCharts } from '@element-plus/icons-vue'
 import NotificationBell from '../notification/NotificationBell.vue'
 import GlobalSearch from '../search/GlobalSearch.vue'
 import { useAuthStore } from '../../stores/authStore'

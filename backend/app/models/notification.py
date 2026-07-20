@@ -14,4 +14,4 @@ class Notification(Base):
     reference_type = Column(String(80), nullable=True)
     reference_id = Column(String(36), nullable=True)
     is_read = Column(Boolean, default=False, index=True)
-    created_at = Column(DateTime, default=func.now())
+    created_at = Column(DateTime, default=func.now(), server_default=func.now())

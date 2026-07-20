@@ -301,7 +301,7 @@ async function fetchPipeline() {
 async function fetchAllUsers() {
   try {
     const { data } = await authApi.listUsers()
-    allUsers.value = data
+    allUsers.value = data.items
   } catch { /* ignore */ }
 }
 

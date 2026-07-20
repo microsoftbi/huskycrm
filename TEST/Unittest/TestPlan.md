@@ -28,10 +28,21 @@ TEST/Unittest/
 ├── test_auth.py             # 认证模块测试
 ├── test_accounts.py         # 账户 CRUD 测试
 ├── test_contacts.py         # 联系人 CRUD 测试
+├── test_products.py         # 产品 CRUD 测试
 ├── test_opportunities.py    # 机会与管道测试
+├── test_leads.py            # 线索 CRUD、转化、Web-to-Lead 测试
+├── test_campaigns.py        # 活动 CRUD 与成员管理测试
+├── test_territories.py      # 区域 CRUD、树、成员、账户、产品、管道测试
+├── test_events.py           # 拜访事件与任务测试
 ├── test_custom_objects.py   # 自定义对象引擎测试
 ├── test_workflows.py        # 工作流引擎测试
-└── test_reports.py          # 报表与仪表盘测试
+├── test_reports.py          # 报表与仪表盘测试
+├── test_profile.py          # 个人信息与密码测试
+├── test_import_export.py    # CSV 导入导出服务测试
+├── test_notifications.py    # 通知系统测试
+├── test_approval.py          # 审批规则 CRUD 与审批流程测试
+├── test_audit_log.py        # 审核日志测试
+├── test_search.py           # 全局搜索测试
 ```
 
 ### 测试数据库
@@ -220,6 +231,121 @@ TEST/Unittest/
 | `TestDashboardComponent` | `test_add_component` | 添加仪表盘组件 |
 | `TestDashboardComponent` | `test_delete_component` | 删除仪表盘组件 |
 
+### 3.10 产品管理 (`test_products.py`) — 12 个测试
+
+| 测试类 | 测试方法 | 验证内容 |
+|---|---|---|
+| `TestCreateProduct` | `test_create_minimal` | 最小字段创建成功 |
+| `TestCreateProduct` | `test_create_full` | 全字段创建（含编码、分类、定价） |
+| `TestCreateProduct` | `test_create_missing_name` | 缺少名称返回 422 |
+| `TestCreateProduct` | `test_create_missing_price` | 缺少价格返回 422 |
+| `TestListProducts` | `test_list_empty` | 空列表返回 total=0 |
+| `TestListProducts` | `test_list_with_data` | 创建后列表包含两条记录 |
+| `TestListProducts` | `test_search` | 按名称搜索过滤 |
+| `TestListProducts` | `test_pagination` | 分页返回正确数量和总数 |
+| `TestGetProduct` | `test_get_by_id` | 按 ID 获取产品 |
+| `TestGetProduct` | `test_get_not_found` | 不存在返回 404 |
+| `TestUpdateProduct` | `test_update` | 更新产品字段 |
+| `TestUpdateProduct` | `test_update_not_found` | 更新不存在返回 404 |
+| `TestDeleteProduct` | `test_delete` | 删除后返回 204 |
+| `TestDeleteProduct` | `test_delete_not_found` | 删除不存在返回 404 |
+
+### 3.11 线索管理 (`test_leads.py`) — 16 个测试
+
+| 测试类 | 测试方法 | 验证内容 |
+|---|---|---|
+| `TestCreateLead` | `test_create_minimal` | 最小字段创建成功 |
+| `TestCreateLead` | `test_create_full` | 全字段创建（含来源、描述） |
+| `TestCreateLead` | `test_create_missing_required` | 缺少必填字段返回 422 |
+| `TestListLeads` | `test_list_empty` | 空列表返回 total=0 |
+| `TestListLeads` | `test_list_with_data` | 创建后列表包含两条记录 |
+| `TestListLeads` | `test_search` | 按名称/公司/邮箱搜索 |
+| `TestListLeads` | `test_filter_by_status` | 按状态筛选 |
+| `TestListLeads` | `test_filter_by_source` | 按来源筛选 |
+| `TestListLeads` | `test_pagination` | 分页返回正确数量和总数 |
+| `TestGetLead` | `test_get_by_id` | 按 ID 获取线索 |
+| `TestGetLead` | `test_get_not_found` | 不存在返回 404 |
+| `TestUpdateLead` | `test_update` | 更新线索字段 |
+| `TestUpdateLead` | `test_update_not_found` | 更新不存在返回 404 |
+| `TestDeleteLead` | `test_delete` | 删除后返回 204 |
+| `TestDeleteLead` | `test_delete_not_found` | 删除不存在返回 404 |
+| `TestConvertLead` | `test_convert_with_new_account` | 转化线索创建新账户和商机 |
+| `TestConvertLead` | `test_convert_with_existing_account` | 转化线索使用已有账户 |
+| `TestWebToLead` | `test_web_to_lead_public` | 无需认证的 Web 表单创建线索 |
+
+### 3.12 活动管理 (`test_campaigns.py`) — 14 个测试
+
+| 测试类 | 测试方法 | 验证内容 |
+|---|---|---|
+| `TestCreateCampaign` | `test_create_minimal` | 最小字段创建成功 |
+| `TestCreateCampaign` | `test_create_full` | 全字段创建（含类型、状态、预算） |
+| `TestCreateCampaign` | `test_create_missing_name` | 缺少名称返回 422 |
+| `TestListCampaigns` | `test_list_empty` | 空列表返回 total=0 |
+| `TestListCampaigns` | `test_list_with_data` | 创建后列表包含两条记录 |
+| `TestListCampaigns` | `test_search` | 按名称搜索 |
+| `TestListCampaigns` | `test_filter_by_status` | 按状态筛选 |
+| `TestListCampaigns` | `test_filter_by_type` | 按类型筛选 |
+| `TestListCampaigns` | `test_pagination` | 分页返回正确数量 |
+| `TestGetCampaign` | `test_get_by_id` | 按 ID 获取活动 |
+| `TestGetCampaign` | `test_get_not_found` | 不存在返回 404 |
+| `TestUpdateCampaign` | `test_update` | 更新活动字段 |
+| `TestUpdateCampaign` | `test_update_not_found` | 更新不存在返回 404 |
+| `TestDeleteCampaign` | `test_delete` | 删除后返回 204 |
+| `TestDeleteCampaign` | `test_delete_not_found` | 删除不存在返回 404 |
+| `TestCampaignMembers` | `test_add_member` | 添加活动成员 |
+| `TestCampaignMembers` | `test_list_members` | 查看活动成员列表 |
+
+### 3.13 销售区域 (`test_territories.py`) — 20 个测试
+
+| 测试类 | 测试方法 | 验证内容 |
+|---|---|---|
+| `TestCreateTerritory` | `test_create_minimal` | 最小字段创建成功 |
+| `TestCreateTerritory` | `test_create_full` | 全字段创建（含编码、类型） |
+| `TestCreateTerritory` | `test_create_with_parent` | 创建子区域（parent_id） |
+| `TestCreateTerritory` | `test_create_missing_name` | 缺少名称返回 422 |
+| `TestCreateTerritory` | `test_create_duplicate_code` | 重复编码返回 400 |
+| `TestListTerritories` | `test_list_empty` | 空列表返回 total=0 |
+| `TestListTerritories` | `test_list_with_data` | 创建后列表包含记录 |
+| `TestListTerritories` | `test_search` | 按名称搜索 |
+| `TestListTerritories` | `test_pagination` | 分页返回正确数量 |
+| `TestTerritoryTree` | `test_tree_structure` | 树形结构正确返回父子关系 |
+| `TestGetTerritory` | `test_get_by_id` | 按 ID 获取区域 |
+| `TestGetTerritory` | `test_get_not_found` | 不存在返回 404 |
+| `TestUpdateTerritory` | `test_update` | 更新区域字段 |
+| `TestUpdateTerritory` | `test_update_not_found` | 更新不存在返回 404 |
+| `TestDeleteTerritory` | `test_delete` | 删除后返回 204 |
+| `TestDeleteTerritory` | `test_delete_not_found` | 删除不存在返回 404 |
+| `TestTerritoryMembers` | `test_add_and_list_members` | 添加和列出区域成员 |
+| `TestTerritoryMembers` | `test_add_member_invalid_user` | 无效用户返回 400 |
+| `TestTerritoryMembers` | `test_remove_member` | 移除区域成员 |
+| `TestTerritoryAccounts` | `test_add_and_list_accounts` | 关联和列出区域账户 |
+| `TestTerritoryAccounts` | `test_remove_account` | 移除区域账户关联 |
+| `TestTerritoryProducts` | `test_add_and_list_products` | 添加和列出区域产品（含区域定价） |
+| `TestTerritoryProducts` | `test_remove_product` | 移除区域产品 |
+| `TestTerritoryPipeline` | `test_pipeline` | 区域管道数据汇总 |
+
+### 3.14 审批规则 — 17 个测试
+
+| 测试类 | 测试方法 | 说明 |
+|---|---|---|
+| `TestCreateApprovalRule` | `test_create_minimal` | 创建最小字段审批规则 |
+| `TestCreateApprovalRule` | `test_create_full` | 创建全字段审批规则 |
+| `TestCreateApprovalRule` | `test_create_missing_name` | 缺少名称返回 422 |
+| `TestCreateApprovalRule` | `test_create_invalid_condition` | 无效条件表达式返回 400 |
+| `TestListApprovalRules` | `test_list_empty` | 空列表返回 total=0 |
+| `TestListApprovalRules` | `test_list_with_data` | 创建后列表返回 2 条 |
+| `TestListApprovalRules` | `test_filter_by_object_type` | 按对象类型筛选 |
+| `TestListApprovalRules` | `test_pagination` | 分页参数验证 |
+| `TestGetApprovalRule` | `test_get_by_id` | 按 ID 获取 |
+| `TestGetApprovalRule` | `test_get_not_found` | 不存在返回 404 |
+| `TestUpdateApprovalRule` | `test_update` | 更新名称和状态 |
+| `TestUpdateApprovalRule` | `test_update_not_found` | 更新不存在返回 404 |
+| `TestDeleteApprovalRule` | `test_delete` | 删除后返回 204 |
+| `TestDeleteApprovalRule` | `test_delete_not_found` | 删除不存在返回 404 |
+| `TestApprovalWorkflow` | `test_full_approval_flow` | 创建规则→触发→审批→验证 |
+| `TestApprovalWorkflow` | `test_reject_flow` | 创建规则→触发→拒绝→验证 |
+| `TestApprovalWorkflow` | `test_no_matching_rule` | 无匹配规则时返回空 |
+
 ---
 
 ## 4. 测试统计
@@ -229,17 +355,26 @@ TEST/Unittest/
 | 认证 | `test_auth.py` | 10 |
 | 账户 | `test_accounts.py` | 12 |
 | 联系人 | `test_contacts.py` | 8 |
+| 产品 | `test_products.py` | 14 |
 | 销售机会 | `test_opportunities.py` | 9 |
+| 线索 | `test_leads.py` | 18 |
+| 活动 | `test_campaigns.py` | 17 |
+| 销售区域 | `test_territories.py` | 24 |
+| 拜访事件 | `test_events.py` | 30 |
 | 自定义对象 | `test_custom_objects.py` | 17 |
 | 工作流 | `test_workflows.py` | 13 |
 | 报表 | `test_reports.py` | 13 |
-| 拜访事件 | `test_events.py` | 30 |
 | 个人信息 | `test_profile.py` | 11 |
-| **合计** | | **124** |
+| 导入导出 | `test_import_export.py` | 10 |
+| 通知 | `test_notifications.py` | 6 |
+| 审核日志 | `test_audit_log.py` | 5 |
+| 审批 | `test_approval.py` | 17 |
+| 搜索 | `test_search.py` | 4 |
+| **合计** | | **236** |
 
 ---
 
-## 4. Fixture 体系
+## 5. Fixture 体系
 
 | Fixture | 作用域 | 用途 |
 |---|---|---|

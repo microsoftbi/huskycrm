@@ -20,8 +20,8 @@ class CustomObjectDef(Base):
     description = Column(Text)
     table_name = Column(String(120), unique=True, nullable=False)              # e.g. "obj_1"
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime, default=func.now(), server_default=func.now())
+    updated_at = Column(DateTime, default=func.now(), server_default=func.now(), onupdate=func.now())
 
     fields = relationship("CustomFieldDef", back_populates="custom_object",
                           cascade="all, delete-orphan",
@@ -50,8 +50,8 @@ class CustomFieldDef(Base):
     precision_scale = Column(Integer)                    # for number type: decimal places
     lookup_object_id = Column(String(36), ForeignKey("custom_object_defs.id"))
     display_order = Column(Integer, default=0)
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime, default=func.now(), server_default=func.now())
+    updated_at = Column(DateTime, default=func.now(), server_default=func.now(), onupdate=func.now())
 
     custom_object = relationship("CustomObjectDef", back_populates="fields",
                                   foreign_keys=[object_id])

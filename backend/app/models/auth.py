@@ -15,7 +15,15 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
     profile_id = Column(String(36), ForeignKey("profiles.id"), nullable=True, index=True)
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime, default=func.now(), server_default=func.now())
+    updated_at = Column(DateTime, default=func.now(), server_default=func.now(), onupdate=func.now())
 
-    profile = relationship("Profile", backref="users")
+    profile = relationship("Profile", back_populates="users")
+    events = relationship("Event", back_populates="owner", foreign_keys="Event.owner_id")
+    tasks = relationship("Task", back_populates="assignee", foreign_keys="Task.assignee_id")
+    leads = relationship("Lead", back_populates="owner", foreign_keys="Lead.owner_id")
+    campaigns = relationship("Campaign", back_populates="owner", foreign_keys="Campaign.owner_id")
+
+
+# Ensure Profile model is loaded into SQLAlchemy registry
+from app.models.profile import Profile  # noqa: F401, E402

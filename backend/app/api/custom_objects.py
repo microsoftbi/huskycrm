@@ -79,7 +79,7 @@ async def get_object(
     )
     obj = result.scalar_one_or_none()
     if not obj:
-        raise HTTPException(status_code=404, detail="Object not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Object not found")
     return obj
 
 

@@ -29,8 +29,8 @@ class ReportUpdate(BaseModel):
 class ReportOut(ReportBase):
     id: str
     owner_id: Optional[str] = None
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     @field_validator("filters", "grouping", "aggregations", "columns", mode="before")
     @classmethod
@@ -82,8 +82,8 @@ class DashboardOut(DashboardBase):
     id: str
     owner_id: Optional[str] = None
     components: list[DashboardComponentOut] = []
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

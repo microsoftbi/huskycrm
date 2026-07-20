@@ -57,8 +57,8 @@ class EventOut(EventBase):
     actual_start_time: Optional[datetime] = None
     actual_end_time: Optional[datetime] = None
     duration_minutes: Optional[int] = None
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -117,9 +117,9 @@ class TaskUpdate(BaseModel):
 
 class TaskOut(TaskBase):
     id: str
-    event_id: str
-    created_at: datetime
-    updated_at: datetime
+    event_id: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

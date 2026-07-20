@@ -22,36 +22,36 @@ TRIGGERS = {
     "accounts": {
         "table": "accounts",
         "object_type": "account",
-        "name_col": "name",
-        "content_cols": "COALESCE(name, '') || ' ' || COALESCE(industry, '') || ' ' || COALESCE(email, '')",
+        "name_col": "NEW.name",
+        "content_cols": "COALESCE(NEW.name, '') || ' ' || COALESCE(NEW.industry, '') || ' ' || COALESCE(NEW.email, '')",
         "id_col": "id",
     },
     "contacts": {
         "table": "contacts",
         "object_type": "contact",
-        "name_col": "first_name || ' ' || last_name",
-        "content_cols": "COALESCE(first_name, '') || ' ' || COALESCE(last_name, '') || ' ' || COALESCE(email, '')",
+        "name_col": "NEW.first_name || ' ' || NEW.last_name",
+        "content_cols": "COALESCE(NEW.first_name, '') || ' ' || COALESCE(NEW.last_name, '') || ' ' || COALESCE(NEW.email, '')",
         "id_col": "id",
     },
     "opportunities": {
         "table": "opportunities",
         "object_type": "opportunity",
-        "name_col": "name",
-        "content_cols": "COALESCE(name, '') || ' ' || COALESCE(description, '')",
+        "name_col": "NEW.name",
+        "content_cols": "COALESCE(NEW.name, '') || ' ' || COALESCE(NEW.description, '')",
         "id_col": "id",
     },
     "products": {
         "table": "products",
         "object_type": "product",
-        "name_col": "name",
-        "content_cols": "COALESCE(name, '') || ' ' || COALESCE(product_code, '') || ' ' || COALESCE(description, '')",
+        "name_col": "NEW.name",
+        "content_cols": "COALESCE(NEW.name, '') || ' ' || COALESCE(NEW.product_code, '') || ' ' || COALESCE(NEW.description, '')",
         "id_col": "id",
     },
     "events": {
         "table": "events",
         "object_type": "event",
-        "name_col": "subject",
-        "content_cols": "COALESCE(subject, '') || ' ' || COALESCE(purpose, '')",
+        "name_col": "NEW.subject",
+        "content_cols": "COALESCE(NEW.subject, '') || ' ' || COALESCE(NEW.purpose, '')",
         "id_col": "id",
     },
 }
@@ -95,6 +95,15 @@ async def search_all(db: AsyncSession, query: str, limit: int = 5) -> dict:
         return {}
 
     search_term = query.strip()
+
+    # Sanitize FTS5 query to prevent injection: strip FTS5 operators and special chars
+    # Only allow alphanumeric, spaces, and basic punctuation
+    import re
+    sanitized = re.sub(r'[^\w\s\-\.@]', '', search_term)
+    sanitized = sanitized.strip()
+    if not sanitized:
+        return {}
+
     results = {
         "accounts": [],
         "contacts": [],
@@ -104,8 +113,8 @@ async def search_all(db: AsyncSession, query: str, limit: int = 5) -> dict:
         "custom_objects": {},
     }
 
-    # Search using FTS5
-    fts_query = f"\"{search_term}\" OR {search_term}*"
+    # Search using FTS5 — use parameterized query for the sanitized term
+    fts_query = f"\"{sanitized}\" OR {sanitized}*"
     sql = text(f"""
         SELECT object_type, object_id, name, content
         FROM {FTS5_TABLE}
@@ -146,29 +155,29 @@ async def _search_like_fallback(db: AsyncSession, query: str, limit: int) -> dic
     q = f"%{query}%"
 
     # Accounts
-    result = await db.execute(select(Account).where(Account.name.ilike(q)).limit(limit))
+    result = await db.execute(select(Account).where(Account.is_deleted == False, Account.name.ilike(q)).limit(limit))
     for a in result.scalars().all():
         results["accounts"].append({"id": a.id, "name": a.name})
 
     # Contacts
     result = await db.execute(
-        select(Contact).where(or_(Contact.first_name.ilike(q), Contact.last_name.ilike(q), Contact.email.ilike(q))).limit(limit)
+        select(Contact).where(Contact.is_deleted == False, or_(Contact.first_name.ilike(q), Contact.last_name.ilike(q), Contact.email.ilike(q))).limit(limit)
     )
     for c in result.scalars().all():
         results["contacts"].append({"id": c.id, "name": f"{c.first_name} {c.last_name}"})
 
     # Opportunities
-    result = await db.execute(select(Opportunity).where(Opportunity.name.ilike(q)).limit(limit))
+    result = await db.execute(select(Opportunity).where(Opportunity.is_deleted == False, Opportunity.name.ilike(q)).limit(limit))
     for o in result.scalars().all():
         results["opportunities"].append({"id": o.id, "name": o.name})
 
     # Products
-    result = await db.execute(select(Product).where(Product.name.ilike(q)).limit(limit))
+    result = await db.execute(select(Product).where(Product.is_deleted == False, Product.name.ilike(q)).limit(limit))
     for p in result.scalars().all():
         results["products"].append({"id": p.id, "name": p.name})
 
     # Events
-    result = await db.execute(select(Event).where(Event.subject.ilike(q)).limit(limit))
+    result = await db.execute(select(Event).where(Event.is_deleted == False, Event.subject.ilike(q)).limit(limit))
     for e in result.scalars().all():
         results["events"].append({"id": e.id, "name": e.subject})
 

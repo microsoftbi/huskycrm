@@ -74,7 +74,7 @@ async def mark_as_read(
     )
     notification = result.scalar_one_or_none()
     if not notification:
-        raise HTTPException(status_code=404, detail="Notification not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
 
     notification.is_read = True
     await db.commit()

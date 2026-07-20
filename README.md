@@ -13,15 +13,26 @@
 |------|------|
 | **仪表盘** | 首页数据概览 |
 | **账户管理** | 客户/公司信息管理，支持分页、搜索、筛选 |
-| **联系人管理** | 联系人信息管理，支持挂靠到账户 |
+| **联系人管理** | 联系人信息管理，支持挂靠到账户（多账户关联） |
 | **产品管理** | 产品目录管理，含分类和定价 |
 | **销售机会** | 机会管道（Kanban 看板），支持阶段拖拽和产品明细 |
-| **销售区域** | 层级化 Territory 管理，支持区域成员、账户关联、产品目录和管道筛选 |
+| **线索管理** | 线索录入、状态跟踪、自动分配、一键转化为账户/联系人/商机 |
+| **活动管理** | 营销活动创建与管理，关联线索和联系人 |
 | **拜访管理** | 拜访计划与执行（Event + Task），支持签到/签退、拜访纪要、结果评估 |
+| **销售区域** | 层级化 Territory 管理，支持区域成员、账户关联、产品目录和管道筛选 |
 | **个人信息** | 用户信息查看/编辑、密码修改、所属区域及经理查询 |
 | **自定义对象** | 动态对象引擎，通过 UI 创建自定义数据表和字段（13种字段类型） |
 | **工作流** | 条件-动作引擎，支持多条件评估和自动操作 |
+| **审批规则** | 多级审批流程，支持条件触发和审批步骤配置 |
+| **验证规则** | 字段级数据验证，保存前自动检查 |
+| **重复规则** | 自动检测重复记录，防止数据冗余 |
+| **导入/导出** | CSV 文件批量导入导出，支持字段映射 |
 | **报表** | 可配置报表和仪表盘，支持图表展示 |
+| **通知系统** | 系统通知推送，工作流触发，通知列表管理 |
+| **审核日志** | 数据变更追踪，记录操作人和变更详情 |
+| **回收站** | 软删除数据恢复，可还原已删除记录 |
+| **用户管理** | 管理员用户管理，分配角色和权限 |
+| **权限配置文件** | 角色权限配置，功能访问控制 |
 
 ## 技术栈
 
@@ -107,9 +118,18 @@ spsf/
 │   │   │   ├── auth.py             # 用户模型
 │   │   │   ├── crm.py              # 账户、联系人、机会、产品、阶段
 │   │   │   ├── event.py            # 拜访事件（Event + Task）
+│   │   │   ├── lead.py             # 线索模型
+│   │   │   ├── campaign.py         # 活动模型
 │   │   │   ├── territory.py        # 销售区域、成员、账户/产品关联
 │   │   │   ├── custom_object.py    # 自定义对象元数据
 │   │   │   ├── workflow.py         # 工作流规则
+│   │   │   ├── approval.py         # 审批规则和审批请求
+│   │   │   ├── validation.py       # 验证规则
+│   │   │   ├── duplicate.py        # 重复规则
+│   │   │   ├── import_job.py       # 导入作业记录
+│   │   │   ├── notification.py     # 系统通知
+│   │   │   ├── audit_log.py        # 审核日志
+│   │   │   ├── profile.py          # 权限配置文件
 │   │   │   └── report.py           # 报表与仪表盘
 │   │   ├── schemas/                # Pydantic 请求/响应模型
 │   │   ├── api/                    # 路由处理器
@@ -120,9 +140,20 @@ spsf/
 │   │   │   ├── opportunities.py    # 机会 CRUD + 管道 + 产品明细 + 拜访历史
 │   │   │   ├── events.py           # 拜访 Event/Task CRUD + 签到签退
 │   │   │   ├── territories.py      # 区域 CRUD + 树 + 成员 + 账户 + 产品 + 管道
+│   │   │   ├── leads.py            # 线索 CRUD + 转化 + 分配规则 + Web-to-Lead
+│   │   │   ├── campaigns.py        # 活动 CRUD + 成员管理
 │   │   │   ├── custom_objects.py   # 自定义对象引擎
 │   │   │   ├── workflows.py        # 工作流管理
-│   │   │   └── reports.py          # 报表 + 仪表盘
+│   │   │   ├── approval_rules.py   # 审批规则 + 审批请求
+│   │   │   ├── validation_rules.py # 验证规则管理
+│   │   │   ├── duplicate_rules.py  # 重复规则 + 重复检查
+│   │   │   ├── import_export.py    # CSV 导入/导出
+│   │   │   ├── reports.py          # 报表 + 仪表盘
+│   │   │   ├── profiles.py         # 权限配置文件管理
+│   │   │   ├── notifications.py    # 系统通知管理
+│   │   │   ├── audit_logs.py       # 审核日志
+│   │   │   ├── recycle_bin.py      # 回收站恢复
+│   │   │   └── search.py           # 全局搜索
 │   │   ├── services/               # 业务逻辑层
 │   │   │   ├── custom_object_service.py  # 动态 DDL 服务
 │   │   │   ├── workflow_service.py       # 条件评估器 + 动作执行器
@@ -147,9 +178,16 @@ spsf/
 │   │   │   ├── opportunities.ts
 │   │   │   ├── events.ts           # 拜访事件 API
 │   │   │   ├── territories.ts
+│   │   │   ├── leads.ts            # 线索 API
+│   │   │   ├── campaigns.ts        # 活动 API
 │   │   │   ├── customObjects.ts
 │   │   │   ├── workflows.ts
+│   │   │   ├── approvalRules.ts    # 审批规则 API
+│   │   │   ├── importExport.ts     # 导入/导出 API
 │   │   │   ├── reports.ts
+│   │   │   ├── notifications.ts    # 通知 API
+│   │   │   ├── profiles.ts         # 配置文件 API
+│   │   │   ├── search.ts           # 搜索 API
 │   │   │   └── profile.ts          # 个人信息 API
 │   │   ├── types/                  # TypeScript 类型定义
 │   │   │   ├── auth.ts
@@ -168,11 +206,14 @@ spsf/
 │   │   │   ├── products/
 │   │   │   ├── opportunities/
 │   │   │   ├── events/             # 拜访管理（列表、表单、详情）
+│   │   │   ├── leads/              # 线索管理（列表、表单、详情）
+│   │   │   ├── campaigns/          # 活动管理（列表、表单、详情）
 │   │   │   ├── territories/
 │   │   │   ├── profile/            # 个人信息页面
 │   │   │   ├── custom-objects/
 │   │   │   ├── workflows/
-│   │   │   └── reports/
+│   │   │   ├── reports/
+│   │   │   └── admin/              # 管理页面（用户管理、设置、审批、回收站、通知、验证规则、重复规则、线索分配规则、配置文件）
 │   │   ├── stores/                 # Pinia 状态管理
 │   │   │   └── authStore.ts
 │   │   ├── router/                 # Vue Router
@@ -216,11 +257,17 @@ spsf/
 | `POST /api/auth/login` | 登录，返回 JWT |
 | `POST /api/auth/refresh` | 刷新 Token |
 | `GET /api/auth/me` | 获取当前用户信息 |
-| `GET /api/auth/users` | 用户列表 |
+| `GET /api/auth/users` | 用户列表（分页） |
+| `PUT /api/auth/profile` | 更新个人信息（显示名称、邮箱） |
+| `PUT /api/auth/password` | 修改密码 |
+| `GET /api/auth/my-territories` | 获取当前用户的区域归属及经理信息 |
 | `GET/POST /api/accounts` | 账户列表/创建 |
 | `GET/PUT/DEL /api/accounts/{id}` | 账户详情/更新/删除 |
+| `GET /api/accounts/{id}/events` | 账户拜访历史 |
 | `GET/POST /api/contacts` | 联系人列表/创建 |
 | `GET/PUT/DEL /api/contacts/{id}` | 联系人详情/更新/删除 |
+| `GET/POST/DEL /api/contacts/{id}/accounts` | 联系人多账户关联管理 |
+| `GET /api/contacts/{id}/events` | 联系人拜访历史 |
 | `GET/POST /api/products` | 产品列表/创建 |
 | `GET/PUT/DEL /api/products/{id}` | 产品详情/更新/删除 |
 | `GET/POST /api/opportunities` | 机会列表/创建 |
@@ -228,6 +275,15 @@ spsf/
 | `GET /api/opportunities/stages` | 销售阶段列表 |
 | `GET /api/opportunities/pipeline` | 管道看板数据 |
 | `GET/POST/DEL /api/opportunities/{id}/line-items` | 机会产品明细 |
+| `GET /api/opportunities/{id}/events` | 商机拜访历史 |
+| `GET/POST /api/leads` | 线索列表/创建 |
+| `GET/PUT/DEL /api/leads/{id}` | 线索详情/更新/删除 |
+| `POST /api/leads/{id}/convert` | 线索转化（创建账户/联系人/商机） |
+| `POST /api/leads/web-to-lead` | 公共 Web 表单创建线索（无需认证） |
+| `GET/POST /api/leads/assignment-rules` | 线索分配规则管理 |
+| `GET/POST /api/campaigns` | 活动列表/创建 |
+| `GET/PUT/DEL /api/campaigns/{id}` | 活动详情/更新/删除 |
+| `GET/POST/DEL /api/campaigns/{id}/members` | 活动成员管理 |
 | `GET/POST /api/territories` | 区域列表/创建 |
 | `GET/PUT/DEL /api/territories/{id}` | 区域详情/更新/删除 |
 | `GET /api/territories/tree` | 区域树形结构 |
@@ -242,6 +298,21 @@ spsf/
 | `GET/PUT/DEL /api/custom-objects/{id}/records/{rid}` | 记录详情/更新/删除 |
 | `GET/POST /api/workflows` | 工作流列表/创建 |
 | `GET/PUT/DEL /api/workflows/{id}` | 工作流管理 |
+| `GET/POST /api/approval-rules` | 审批规则列表/创建 |
+| `GET/PUT/DEL /api/approval-rules/{id}` | 审批规则管理 |
+| `POST /api/approval-rules/{id}/submit` | 提交审批请求 |
+| `POST /api/approval-requests/{id}/approve` | 审批通过 |
+| `POST /api/approval-requests/{id}/reject` | 审批拒绝 |
+| `GET /api/approval-requests` | 审批请求列表 |
+| `GET/POST /api/validation-rules` | 验证规则列表/创建 |
+| `GET/PUT/DEL /api/validation-rules/{id}` | 验证规则管理 |
+| `GET/POST /api/duplicate-rules` | 重复规则列表/创建 |
+| `GET/PUT/DEL /api/duplicate-rules/{id}` | 重复规则管理 |
+| `POST /api/duplicate-rules/{id}/check` | 执行重复检查 |
+| `POST /api/import/upload` | 上传 CSV 文件（预览） |
+| `POST /api/import/confirm` | 确认导入（字段映射） |
+| `GET /api/import/jobs` | 导入历史列表 |
+| `GET /api/export/{object_type}` | 导出 CSV 文件 |
 | `GET/POST /api/reports` | 报表列表/创建 |
 | `GET/PUT/DEL /api/reports/{id}` | 报表管理 |
 | `POST /api/reports/{id}/run` | 执行报表 |
@@ -253,12 +324,17 @@ spsf/
 | `POST /api/events/{id}/check-out` | 签退（计算时长） |
 | `GET/POST /api/events/{id}/tasks` | 拜访任务列表/创建 |
 | `PUT/DEL /api/events/{id}/tasks/{tid}` | 拜访任务更新/删除 |
-| `GET /api/accounts/{id}/events` | 账户拜访历史 |
-| `GET /api/contacts/{id}/events` | 联系人拜访历史 |
-| `GET /api/opportunities/{id}/events` | 商机拜访历史 |
-| `PUT /api/auth/profile` | 更新个人信息（显示名称、邮箱） |
-| `PUT /api/auth/password` | 修改密码 |
-| `GET /api/auth/my-territories` | 获取当前用户的区域归属及经理信息 |
+| `GET /api/notifications` | 通知列表 |
+| `PUT /api/notifications/{id}/read` | 标记通知已读 |
+| `PUT /api/notifications/read-all` | 全部标记已读 |
+| `GET /api/audit-logs` | 审核日志列表 |
+| `GET /api/recycle-bin` | 回收站列表 |
+| `POST /api/recycle-bin/{id}/restore` | 恢复已删除记录 |
+| `GET /api/profiles` | 权限配置文件列表 |
+| `GET/POST /api/profiles` | 配置文件列表/创建 |
+| `GET/PUT/DEL /api/profiles/{id}` | 配置文件管理 |
+| `GET /api/search` | 全局搜索 |
+| `GET /api/health` | 健康检查 |
 
 ## 运行测试
 
@@ -270,7 +346,7 @@ source venv/bin/activate
 python -m pytest TEST/Unittest/ -v
 ```
 
-81 个测试用例，覆盖认证、CRUD、分页搜索、错误路径、自定义对象引擎、工作流条件评估、报表执行等。
+覆盖认证、CRUD、分页搜索、错误路径、自定义对象引擎、工作流条件评估、报表执行、线索管理、活动管理、审批规则等。
 
 ### UAT 端到端测试
 
@@ -346,11 +422,15 @@ Event 采用 **WhatId/WhoId 多态关联**（Salesforce 模式），通过 `what
 | 联系人 | `con_` | `con_a1b2c3d4e5f6` |
 | 产品 | `prod_` | `prod_a1b2c3d4e5f6` |
 | 商机 | `oppo_` | `oppo_a1b2c3d4e5f6` |
+| 线索 | `lead_` | `lead_a1b2c3d4e5f6` |
+| 活动 | `camp_` | `camp_a1b2c3d4e5f6` |
 | 区域 | `terr_` | `terr_a1b2c3d4e5f6` |
 | 拜访 | `event_` | `event_a1b2c3d4e5f6` |
 | 自定义对象 | `cod_` | `cod_a1b2c3d4e5f6` |
 | 工作流 | `wf_` | `wf_a1b2c3d4e5f6` |
+| 审批规则 | `apr_` | `apr_a1b2c3d4e5f6` |
 | 报表 | `rpt_` | `rpt_a1b2c3d4e5f6` |
+| 通知 | `notif_` | `notif_a1b2c3d4e5f6` |
 
 ### 前端样式
 

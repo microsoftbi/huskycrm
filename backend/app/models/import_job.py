@@ -15,4 +15,4 @@ class ImportJob(Base):
     errors = Column(String, nullable=True)
     status = Column(String(20), default="pending")  # pending | processing | completed | failed
     created_by = Column(String(36), nullable=False)
-    created_at = Column(DateTime, default=func.now())
+    created_at = Column(DateTime, default=func.now(), server_default=func.now())

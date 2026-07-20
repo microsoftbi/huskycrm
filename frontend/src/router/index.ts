@@ -208,6 +208,56 @@ const router = createRouter({
           component: () => import('../views/admin/NotificationList.vue'),
         },
         {
+          path: 'admin/approval-queue',
+          name: 'ApprovalQueue',
+          component: () => import('../views/admin/ApprovalQueue.vue'),
+        },
+        {
+          path: 'admin/recycle-bin',
+          name: 'RecycleBin',
+          component: () => import('../views/admin/RecycleBin.vue'),
+        },
+        {
+          path: 'campaigns',
+          name: 'CampaignList',
+          component: () => import('../views/campaigns/CampaignList.vue'),
+        },
+        {
+          path: 'campaigns/new',
+          name: 'CampaignCreate',
+          component: () => import('../views/campaigns/CampaignForm.vue'),
+        },
+        {
+          path: 'campaigns/:id',
+          name: 'CampaignDetail',
+          component: () => import('../views/campaigns/CampaignDetail.vue'),
+        },
+        {
+          path: 'campaigns/:id/edit',
+          name: 'CampaignEdit',
+          component: () => import('../views/campaigns/CampaignForm.vue'),
+        },
+        {
+          path: 'leads',
+          name: 'LeadList',
+          component: () => import('../views/leads/LeadList.vue'),
+        },
+        {
+          path: 'leads/new',
+          name: 'LeadCreate',
+          component: () => import('../views/leads/LeadForm.vue'),
+        },
+        {
+          path: 'leads/:id',
+          name: 'LeadDetail',
+          component: () => import('../views/leads/LeadDetail.vue'),
+        },
+        {
+          path: 'leads/:id/edit',
+          name: 'LeadEdit',
+          component: () => import('../views/leads/LeadForm.vue'),
+        },
+        {
           path: 'profile',
           name: 'Profile',
           component: () => import('../views/profile/ProfilePage.vue'),

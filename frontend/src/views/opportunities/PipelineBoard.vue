@@ -79,7 +79,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { opportunitiesApi } from '../../api/opportunities'
-import type { PipelineData, Opportunity } from '../../types/crm'
+import type { PipelineData, Opportunity, Stage } from '../../types/crm'
 import { Calendar } from '@element-plus/icons-vue'
 
 const router = useRouter()
@@ -101,7 +101,7 @@ const summaryCards = computed(() => {
   ]
 })
 
-function getStageClass(stage: any) {
+function getStageClass(stage: Stage) {
   if (stage.is_closed_won) return 'stage-won'
   if (stage.is_closed_lost) return 'stage-lost'
   if (stage.probability >= 70) return 'stage-hot'
@@ -123,7 +123,7 @@ function onDragEnd(e: DragEvent) {
   document.querySelectorAll('.kanban-column').forEach(el => el.classList.remove('drag-over'))
 }
 
-function onDragOver(e: DragEvent, _stageId: number) {
+function onDragOver(e: DragEvent, _stageId: string) {
   if (e.dataTransfer) e.dataTransfer.dropEffect = 'move'
   ;(e.currentTarget as HTMLElement).classList.add('drag-over')
 }
@@ -132,7 +132,7 @@ function onDragLeave(e: DragEvent) {
   ;(e.currentTarget as HTMLElement).classList.remove('drag-over')
 }
 
-async function onDrop(e: DragEvent, targetStageId: number) {
+async function onDrop(e: DragEvent, targetStageId: string) {
   ;(e.currentTarget as HTMLElement).classList.remove('drag-over')
   const opp = draggingOpp.value
   if (!opp || opp.stage_id === targetStageId) return

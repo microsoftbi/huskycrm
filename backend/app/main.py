@@ -4,10 +4,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import init_db
+from app.config import settings
 from app.api import (
     auth, accounts, contacts, opportunities, custom_objects, workflows, reports,
     products, territories, events, profiles, audit_logs, notifications, search,
-    import_export,
+    import_export, recycle_bin, validation_rules, duplicate_rules, approval_rules, campaigns, leads,
 )
 
 
@@ -26,7 +27,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -67,6 +68,12 @@ app.include_router(audit_logs.router)
 app.include_router(notifications.router)
 app.include_router(search.router)
 app.include_router(import_export.router)
+app.include_router(recycle_bin.router)
+app.include_router(validation_rules.router)
+app.include_router(duplicate_rules.router)
+app.include_router(approval_rules.router)
+app.include_router(campaigns.router)
+app.include_router(leads.router)
 
 
 @app.get("/api/health")

@@ -37,6 +37,11 @@ async def init_db():
     from app.models.audit_log import AuditLog  # noqa: F401
     from app.models.notification import Notification  # noqa: F401
     from app.models.import_job import ImportJob  # noqa: F401
+    from app.models.validation_rule import ValidationRule  # noqa: F401
+    from app.models.duplicate_rule import DuplicateRule  # noqa: F401
+    from app.models.approval import ApprovalRule, ApprovalRequest, ApprovalStep  # noqa: F401
+    from app.models.campaign import Campaign, CampaignMember  # noqa: F401
+    from app.models.lead import Lead, LeadAssignmentRule  # noqa: F401
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -55,9 +60,14 @@ async def init_db():
         User, Account, Contact, Opportunity, Product, Event, Task,
         Territory, TerritoryMember, TerritoryAccount, TerritoryProduct,
         CustomObjectDef, CustomFieldDef,
-        WorkflowRule, WorkflowAction,
+        WorkflowRule, WorkflowAction, WorkflowExecutionLog,
         Report, Dashboard, DashboardComponent,
-        Notification,
+        Notification, Profile,
+        Lead, LeadAssignmentRule,
+        ApprovalRule, ApprovalRequest, ApprovalStep,
+        Campaign, CampaignMember,
+        DuplicateRule, ValidationRule,
+        ImportJob,
     ]:
         attach_listeners(model_cls)
 

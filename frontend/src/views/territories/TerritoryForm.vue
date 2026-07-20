@@ -115,7 +115,7 @@ onMounted(async () => {
 
   try {
     const { data } = await authApi.listUsers()
-    users.value = data
+    users.value = data.items
   } catch { /* ignore */ }
 
   if (props.territoryId) {

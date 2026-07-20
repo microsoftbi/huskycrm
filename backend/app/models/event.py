@@ -4,9 +4,10 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 from app.database import Base
 from app.utils.id_gen import generate_id
+from app.models.mixins import SoftDeleteMixin
 
 
-class Event(Base):
+class Event(SoftDeleteMixin, Base):
     """拜访事件/活动 — 对应 Salesforce Event 对象"""
     __tablename__ = "events"
 
@@ -45,17 +46,17 @@ class Event(Base):
     location = Column(String(255), comment="签到位置 (Location)")
 
     # 时间戳
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime, default=func.now(), server_default=func.now())
+    updated_at = Column(DateTime, default=func.now(), server_default=func.now(), onupdate=func.now())
 
     # 关系
-    contact = relationship("Contact", backref="events")
-    owner = relationship("User", backref="events")
+    contact = relationship("Contact", back_populates="events")
+    owner = relationship("User", back_populates="events")
     tasks = relationship("Task", back_populates="event", cascade="all, delete-orphan",
                          order_by="Task.sort_order")
 
 
-class Task(Base):
+class Task(SoftDeleteMixin, Base):
     """任务 — 对应 Salesforce Task 对象"""
     __tablename__ = "tasks"
 
@@ -75,9 +76,9 @@ class Task(Base):
     description = Column(Text, comment="任务描述 (Description)")
     sort_order = Column(Integer, default=0, comment="排序")
 
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime, default=func.now(), server_default=func.now())
+    updated_at = Column(DateTime, default=func.now(), server_default=func.now(), onupdate=func.now())
 
     # 关系
     event = relationship("Event", back_populates="tasks")
-    assignee = relationship("User", backref="tasks")
+    assignee = relationship("User", back_populates="tasks")

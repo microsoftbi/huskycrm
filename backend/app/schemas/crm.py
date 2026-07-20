@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 from datetime import datetime, date
 from typing import Optional, Any
 
@@ -28,8 +28,8 @@ class AccountUpdate(AccountBase):
 
 class AccountOut(AccountBase):
     id: str
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -60,11 +60,20 @@ class ContactOut(ContactBase):
     id: str
     account_name: Optional[str] = None
     accounts: list["ContactAccountOut"] = []
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
+
+    @model_validator(mode="before")
+    @classmethod
+    def _map_account_associations(cls, data):
+        """Map ORM model's account_associations to schema's accounts field."""
+        if isinstance(data, dict) and "account_associations" in data:
+            if "accounts" not in data or not data["accounts"]:
+                data["accounts"] = data.pop("account_associations")
+        return data
 
 
 class ContactAccountOut(BaseModel):
@@ -72,7 +81,7 @@ class ContactAccountOut(BaseModel):
     contact_id: str
     account_id: str
     account_name: Optional[str] = None
-    assigned_at: datetime
+    assigned_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -134,7 +143,7 @@ class OpportunityProductCreate(OpportunityProductBase):
 class OpportunityProductOut(OpportunityProductBase):
     id: str
     opportunity_id: str
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -142,8 +151,8 @@ class OpportunityProductOut(OpportunityProductBase):
 
 class OpportunityOut(OpportunityBase):
     id: str
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
     line_items: list[OpportunityProductOut] = []
 
     class Config:
@@ -182,8 +191,8 @@ class ProductUpdate(ProductBase):
 
 class ProductOut(ProductBase):
     id: str
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

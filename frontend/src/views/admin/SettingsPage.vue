@@ -22,6 +22,22 @@
           <el-icon><setting /></el-icon>
           <span>Profile管理</span>
         </el-menu-item>
+        <el-menu-item index="validation-rules">
+          <el-icon><checked /></el-icon>
+          <span>验证规则</span>
+        </el-menu-item>
+        <el-menu-item index="duplicate-rules">
+          <el-icon><copy-document /></el-icon>
+          <span>重复检测</span>
+        </el-menu-item>
+        <el-menu-item index="approval-rules">
+          <el-icon><finished /></el-icon>
+          <span>审批规则</span>
+        </el-menu-item>
+        <el-menu-item index="lead-assignment-rules">
+          <el-icon><share /></el-icon>
+          <span>线索分配规则</span>
+        </el-menu-item>
       </el-menu>
     </div>
 
@@ -30,6 +46,10 @@
       <UserManagement v-if="activeMenu === 'users'" />
       <TerritoryList v-if="activeMenu === 'territories'" />
       <ProfileManagement v-if="activeMenu === 'profiles'" />
+      <ValidationRuleManagement v-if="activeMenu === 'validation-rules'" />
+      <DuplicateRuleManagement v-if="activeMenu === 'duplicate-rules'" />
+      <ApprovalRuleManagement v-if="activeMenu === 'approval-rules'" />
+      <LeadAssignmentRuleManagement v-if="activeMenu === 'lead-assignment-rules'" />
     </div>
   </div>
 </template>
@@ -37,9 +57,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { Checked } from '@element-plus/icons-vue'
 import UserManagement from './UserManagement.vue'
 import TerritoryList from '../territories/TerritoryList.vue'
 import ProfileManagement from './ProfileManagement.vue'
+import ValidationRuleManagement from './ValidationRuleManagement.vue'
+import DuplicateRuleManagement from './DuplicateRuleManagement.vue'
+import ApprovalRuleManagement from './ApprovalRuleManagement.vue'
+import LeadAssignmentRuleManagement from './LeadAssignmentRuleManagement.vue'
 
 const route = useRoute()
 const router = useRouter()

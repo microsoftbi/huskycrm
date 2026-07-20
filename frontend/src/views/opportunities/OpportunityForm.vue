@@ -141,11 +141,11 @@ import type { Account, Stage, Product, LineItem } from '../../types/crm'
 
 interface LineItemRow {
   _tempId: number
-  product_id: number | undefined
+  product_id: string | undefined
   quantity: number
   unit_price: number
-  id?: number  // server ID for existing items
-  opportunity_id?: number
+  id?: string  // server ID for existing items
+  opportunity_id?: string
 }
 
 const route = useRoute()
@@ -162,8 +162,8 @@ const isEdit = computed(() => !!route.params.id)
 
 const form = reactive({
   name: '',
-  account_id: undefined as number | undefined,
-  stage_id: undefined as number | undefined,
+  account_id: undefined as string | undefined,
+  stage_id: undefined as string | undefined,
   amount: 0,
   probability: 0,
   close_date: undefined as string | undefined,

@@ -82,7 +82,7 @@ async def get_workflow(
     )
     rule = result.scalar_one_or_none()
     if not rule:
-        raise HTTPException(status_code=404, detail="Workflow not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workflow not found")
     return rule
 
 
@@ -97,7 +97,7 @@ async def update_workflow(
     result = await db.execute(select(WorkflowRule).where(WorkflowRule.id == workflow_id))
     rule = result.scalar_one_or_none()
     if not rule:
-        raise HTTPException(status_code=404, detail="Workflow not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workflow not found")
 
     update_data = payload.model_dump(exclude_unset=True)
     if "condition_expression" in update_data:
@@ -130,7 +130,7 @@ async def delete_workflow(
     )
     rule = result.scalar_one_or_none()
     if not rule:
-        raise HTTPException(status_code=404, detail="Workflow not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workflow not found")
     await db.delete(rule)
     await db.commit()
 
@@ -151,7 +151,7 @@ async def test_workflow(
     )
     rule = result.scalar_one_or_none()
     if not rule:
-        raise HTTPException(status_code=404, detail="Workflow not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Workflow not found")
 
     record_data = payload.get("record", {})
     conditions = rule.condition_expression

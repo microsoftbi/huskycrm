@@ -22,7 +22,7 @@ class TestReportCRUD:
         })
         resp = await client.get("/api/reports", headers=auth_headers)
         assert resp.status_code == 200
-        assert len(resp.json()) == 2
+        assert resp.json()["total"] == 2
 
     async def test_get_report(self, client, auth_headers):
         resp = await client.post("/api/reports", headers=auth_headers, json={

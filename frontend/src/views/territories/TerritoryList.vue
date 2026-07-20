@@ -393,7 +393,7 @@ async function loadAllSelectors() {
       accountsApi.list({ page: 1, page_size: 100 }),
       productsApi.list({ page: 1, page_size: 100 }),
     ])
-    allUsers.value = u.data
+    allUsers.value = u.data.items
     allAccounts.value = a.data.items
     allProducts.value = p.data.items
   } catch { /* ignore */ }

@@ -11,14 +11,14 @@ class Territory(Base):
 
     id = Column(String(36), primary_key=True, default=lambda: generate_id("terr_"))
     name = Column(String(255), nullable=False, index=True)
-    code = Column(String(100), index=True)
+    code = Column(String(100), unique=True)
     territory_type = Column(String(50), default="region")
     parent_id = Column(String(36), ForeignKey("territories.id"))
     description = Column(Text)
     is_active = Column(Boolean, default=True)
     owner_id = Column(String(36), ForeignKey("users.id"))
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime, default=func.now(), server_default=func.now())
+    updated_at = Column(DateTime, default=func.now(), server_default=func.now(), onupdate=func.now())
 
     parent = relationship("Territory", remote_side=[id], back_populates="children")
     children = relationship("Territory", back_populates="parent", cascade="all, delete-orphan")
@@ -33,7 +33,7 @@ class TerritoryMember(Base):
     territory_id = Column(String(36), ForeignKey("territories.id"), nullable=False)
     user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
     role = Column(String(50), default="member")
-    assigned_at = Column(DateTime, default=func.now())
+    assigned_at = Column(DateTime, default=func.now(), server_default=func.now())
 
     territory = relationship("Territory")
     user = relationship("User")
@@ -46,7 +46,7 @@ class TerritoryAccount(Base):
     id = Column(String(36), primary_key=True, default=lambda: generate_id("tacc_"))
     territory_id = Column(String(36), ForeignKey("territories.id"), nullable=False)
     account_id = Column(String(36), ForeignKey("accounts.id"), nullable=False)
-    assigned_at = Column(DateTime, default=func.now())
+    assigned_at = Column(DateTime, default=func.now(), server_default=func.now())
 
     territory = relationship("Territory")
     account = relationship("Account")
@@ -61,7 +61,7 @@ class TerritoryProduct(Base):
     product_id = Column(String(36), ForeignKey("products.id"), nullable=False)
     price = Column(DECIMAL(15, 2))  # null = use product default price
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=func.now())
+    created_at = Column(DateTime, default=func.now(), server_default=func.now())
 
     territory = relationship("Territory")
     product = relationship("Product")

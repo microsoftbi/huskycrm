@@ -59,7 +59,7 @@ async def create_profile(
     # Check for duplicate name
     existing = await db.execute(select(Profile).where(Profile.name == payload.name))
     if existing.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail="Profile name already exists")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Profile name already exists")
 
     profile = Profile(**payload.model_dump(exclude_unset=True))
     db.add(profile)
@@ -123,7 +123,7 @@ async def update_profile(
 
     # Prevent changing profile_type of system profiles
     if profile.is_system and payload.profile_type is not None:
-        raise HTTPException(status_code=400, detail="Cannot change profile type of system profiles")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot change profile type of system profiles")
 
     update_data = payload.model_dump(exclude_unset=True)
     for field, value in update_data.items():
@@ -159,14 +159,14 @@ async def delete_profile(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found")
 
     if profile.is_system:
-        raise HTTPException(status_code=400, detail="Cannot delete system profiles")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot delete system profiles")
 
     # Check if any users are assigned to this profile
     user_count = await db.scalar(
         select(func.count(User.id)).where(User.profile_id == profile_id)
     )
     if user_count and user_count > 0:
-        raise HTTPException(status_code=400, detail=f"Cannot delete profile with {user_count} assigned users")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Cannot delete profile with {user_count} assigned users")
 
     await db.delete(profile)
     await db.commit()

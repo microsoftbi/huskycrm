@@ -25,3 +25,5 @@ Thumbs.db
 .env
 .env.local
 .claude/
+*.bak
+TEST/UAT/report.html
